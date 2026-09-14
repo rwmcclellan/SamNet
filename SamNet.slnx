@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="OpenIP/OpenIP.csproj" />
+  <Project Path="SamNet.Native/SamNet.Native.csproj" />
+  <Project Path="SamNet/SamNet.csproj" />
+</Solution>

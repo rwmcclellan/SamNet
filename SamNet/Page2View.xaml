@@ -1,0 +1,905 @@
+﻿<UserControl x:Class="SamNet.Page2View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:local="clr-namespace:SamNet"             
+             xmlns:t="clr-namespace:SharedToolbox"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="VisConverter"/>
+        <t:VisConverterInvisible x:Key="InvisConverter"/>
+        <t:VisConverterAnd x:Key="AndVisibilityConverter"/>
+        <t:VisConverterNot x:Key="NotVisibilityConverter"/>
+        <t:VisConverterNotHidden x:Key="VisNotHiddenConverter"/>
+        <t:VisConverterTrueFalse x:Key="TrueFalseVisibilityConverter"/>
+        <t:VisConverterFalseFalse x:Key="FalseFalseVisibilityConverter"/>
+        <t:VisConverterEqual x:Key="VisEqualConverter"/>
+        <t:VisConverterFlag x:Key="VisFlagConverter"/>
+        <t:BooleanConverterEqual x:Key="BoolEqualConverter"/>
+        <t:BooleanConverterFlag x:Key="BoolFlagConverter"/>
+        <t:BooleanNotConverter x:Key="NotConverter"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1872*" />
+            <ColumnDefinition Width="10" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="53"/>
+            <RowDefinition Height="900*"/>
+            <RowDefinition Height="53"/>
+        </Grid.RowDefinitions>
+
+        <Grid Margin="2" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="842"/>
+            </Grid.RowDefinitions>
+            <StackPanel>
+                
+                
+            </StackPanel>
+            <TabControl TabStripPlacement="Left" SelectedIndex="{Binding SelectedTabIndex}">
+                <TabControl.Resources>
+                    <Style TargetType="TabItem">
+                        <Setter Property="Width" Value="150"/>
+                        <Setter Property="Height" Value="60"/>
+                        <Setter Property="Padding" Value="12,6"/>
+                        <Setter Property="Margin" Value="0,0,4,0"/>
+                        <Setter Property="BorderBrush" Value="#CCCCCC"/>
+                        <Setter Property="Background" Value="#F0F0F0"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TabItem">
+                                    <Border Name="Border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1,1,1,1"
+                                                CornerRadius="6,6,0,0" Margin="{TemplateBinding Margin}">
+                                        <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="White"/>
+                                            <Setter TargetName="Border" Property="BorderThickness" Value="1,1,1,1"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#E0E0E0"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TabControl.Resources>
+                <TabControl.Template>
+                    <ControlTemplate TargetType="TabControl">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <!-- Tab strip + extra content -->
+                                <ColumnDefinition Width="*"/>
+                                <!-- Content area -->
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Left side: tabs + anything after the last tab -->
+                            <DockPanel Grid.Column="0" LastChildFill="True">
+                                <StackPanel  Grid.Column="0"  Orientation="Vertical"  VerticalAlignment="Top">
+
+                                    <!-- The actual tab headers -->
+                                    <TabPanel IsItemsHost="True"  Margin="0,0,0,0"/>
+
+                                    <StackPanel DockPanel.Dock="Bottom" Margin="0,370,4,0"
+                                                Visibility="Hidden">
+                                        <TextBlock Text="PlaceHolder" Width="120" FontSize="16" Margin="0,4,0,0" Foreground="Green"/>
+                                    </StackPanel>  
+                                </StackPanel>
+                            </DockPanel>                           
+
+                            <!-- Content presenter for the selected tab -->
+                            <Border Grid.Column="1"
+                        BorderBrush="#CCCCCC"
+                        BorderThickness="1"
+                        Background="White"
+                        Margin="0,0,0,0">
+                                <ContentPresenter ContentSource="SelectedContent"/>
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </TabControl.Template>
+                <TabItem Header="Review" FontSize="14" Tag="Review">
+                    <Grid Background="Transparent">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1326"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Canvas Background="#A0A0A0" Grid.Row="0" Grid.Column="0" Width="{Binding BS_CanvasWidth}" Height="{Binding BS_CanvasHeight}"
+                            ClipToBounds="True" Visibility="{Binding IsRoiCanvasShowing, Converter={StaticResource NotVisibilityConverter}}"> 
+                            <Image Source="{Binding BS}" Canvas.Left="{Binding BS_Left}" Canvas.Top="{Binding BS_Top}" Panel.ZIndex="1"
+                           Stretch="Fill" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                           Width="{Binding BS_Width}" Height="{Binding BS_Height}">
+                            </Image>
+                            <Canvas Canvas.Left="{Binding BS_Left}" Canvas.Top="{Binding BS_Top}" Width="{Binding BS_Width}" Height="{Binding BS_Height}" Background="Transparent" 
+                            Panel.ZIndex="2" >
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="PreviewMouseDown">
+                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="ImageMouseDown"/>
+                                    </i:EventTrigger>
+                                    <!--
+                                    <i:EventTrigger EventName="PreviewMouseRightButtonDown">
+                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="PanMouseRightButtonDown"/>
+                                    </i:EventTrigger>
+                                    -->
+                                    <i:EventTrigger EventName="PreviewMouseUp">
+                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="ImageMouseUp"/>
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="PreviewMouseMove">
+                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="ImageMouseMove"/>
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="MouseLeave">
+                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="ImageMouseLeave"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Canvas>
+                        </Canvas>
+                        <Canvas Background="#A0A0A0" Grid.Row="0" Grid.Column="0" Width="{Binding BS_CanvasWidth}" Height="{Binding BS_CanvasHeight}"
+                            ClipToBounds="True" Visibility="{Binding IsRoiCanvasShowing, Converter={StaticResource VisConverter}}">
+                            <Image Source="{Binding BS}" Canvas.Left="{Binding BS_Roi_Left}" Canvas.Top="{Binding BS_Roi_Top}" Panel.ZIndex="1"
+                           Stretch="Fill" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                           Width="{Binding BS_Roi_Width}" Height="{Binding BS_Roi_Height}">
+                            </Image>
+                            <Canvas Canvas.Left="{Binding BS_Roi_Left}" Canvas.Top="{Binding BS_Roi_Top}" Width="{Binding BS_Roi_Width}" Height="{Binding BS_Roi_Height}" Background="Transparent" 
+                            Panel.ZIndex="2" >
+                                <!--
+                                <ItemsControl ItemsSource="{Binding Lines}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <Canvas />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Line X1="{Binding X1}" Y1="{Binding Y1}" X2="{Binding X2}" Y2="{Binding Y2}" Stroke="{Binding Color}" StrokeThickness="3" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                -->
+                               <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="PreviewMouseDown">
+                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="ImageMouseDown"/>
+                                    </i:EventTrigger>
+                                    <!--
+                                    <i:EventTrigger EventName="PreviewMouseRightButtonDown">
+                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="PanMouseRightButtonDown"/>
+                                    </i:EventTrigger>
+                                    -->
+                                    <i:EventTrigger EventName="PreviewMouseUp">
+                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="ImageMouseUp"/>
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="PreviewMouseMove">
+                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="ImageMouseMove"/>
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="MouseLeave">
+                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="ImageMouseLeave"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Canvas>
+                        </Canvas>
+                        <StackPanel Grid.Column="1">
+                            <StackPanel Height="680">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="30,12,0,0">
+                                        <RadioButton GroupName="RBFullImageOrBox"  Foreground="Black" Margin="00,5,0,0" Tag="1" >
+                                            <TextBlock Text="Full Image" FontSize="22" Margin="0,-8,0,0"/>
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Checked">
+                                                    <i:CallMethodAction TargetObject="{Binding}" MethodName="RadioButtonChecked"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                            <RadioButton.IsChecked>
+                                                <MultiBinding Converter="{StaticResource BoolEqualConverter}" Mode="OneWay" >
+                                                    <Binding Path="Tag" RelativeSource="{RelativeSource Self}" Mode="OneWay"/>
+                                                    <Binding Path="RBFullImageOrBoxState" Mode="OneWay"/>
+                                                </MultiBinding>
+                                            </RadioButton.IsChecked>
+                                        </RadioButton>
+                                        <RadioButton GroupName="RBFullImageOrBox"  Foreground="Black" Margin="30,5,0,0" Tag="2" >
+                                            <TextBlock Text="Box" FontSize="22" Margin="0,-8,0,0"  />
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Checked">
+                                                    <i:CallMethodAction TargetObject="{Binding}" MethodName="RadioButtonChecked"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                            <RadioButton.IsChecked>
+                                                <MultiBinding Converter="{StaticResource BoolEqualConverter}" Mode="OneWay" >
+                                                    <Binding Path="Tag" RelativeSource="{RelativeSource Self}" Mode="OneWay"/>
+                                                    <Binding Path="RBFullImageOrBoxState" Mode="OneWay"/>
+                                                </MultiBinding>
+                                            </RadioButton.IsChecked>
+                                        </RadioButton>
+                                        <StackPanel.Visibility>
+                                            <MultiBinding Converter="{StaticResource VisEqualConverter}">
+                                                <Binding Source="3"/>
+                                                <Binding Path="SelectedTabFlag"/>
+                                            </MultiBinding>
+                                        </StackPanel.Visibility>
+                                    </StackPanel>
+                                    <StackPanel Tag="1">   <!-- Sam2 Single -->
+                                        <StackPanel Tag="1">   <!-- Full Image Mode -->
+                                            <StackPanel HorizontalAlignment="Center">
+                                                <TextBlock Text="Label: New Detection" FontSize="20" Margin="0,8,0,0"></TextBlock>
+                                            </StackPanel>
+                                            <StackPanel Height="94" Margin="0,18,0,0">
+                                                <Button Grid.Column="0" Height="90" Width="140" Margin="0,0,0,0" Tag="Sam2Accept" Foreground="Green">
+                                                    <TextBlock TextAlignment="Center" FontSize="20">Add<LineBreak/>Detection<LineBreak/>To Dataset</TextBlock>
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="PreviewMouseDown">
+                                                            <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                </Button>
+                                            </StackPanel>
+                                            <Button Grid.Column="0" Height="70" Width="140" Margin="0,18,0,0" Tag="Sam2Reject" Foreground="Red">
+                                                <TextBlock TextAlignment="Center" FontSize="20">Reject<LineBreak/>Detection</TextBlock>
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="PreviewMouseDown">
+                                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </Button>
+                                            <StackPanel.Visibility>
+                                                <MultiBinding Converter="{StaticResource VisEqualConverter}" Mode="OneWay" >
+                                                    <Binding Path="Tag" RelativeSource="{RelativeSource Self}" Mode="OneWay"/>
+                                                    <Binding Path="RBFullImageOrBoxState" Mode="OneWay"/>
+                                                </MultiBinding>
+                                            </StackPanel.Visibility>
+                                        </StackPanel>
+                                        <StackPanel.Visibility >
+                                            <MultiBinding Converter="{StaticResource VisFlagConverter}" Mode="OneWay" >
+                                                <Binding Path="Tag" RelativeSource="{RelativeSource Self}" Mode="OneWay"/>
+                                                <Binding Path="OperationState" Mode="OneWay"/>
+                                            </MultiBinding>
+                                        </StackPanel.Visibility>
+                                        
+                                    </StackPanel>
+                                    <StackPanel Tag="2">  <!-- Sam2 MultiMask -->
+                                        <GroupBox Header="Sam MultiMask" Margin="10,5,5,5" FontSize="14"
+                                            Visibility="{Binding IsSamMultiMask, Converter={StaticResource VisConverter}}">
+                                            <StackPanel Height="600">
+                                                <TextBlock Text="Last MultiMask viewed is" FontSize="16" Margin="16,14,0,0" Foreground="Blue"/>
+                                                <TextBlock Text="considered chosen mask" FontSize="16" Margin="16,2,0,6" Foreground="Blue"/>
+                                                <RadioButton GroupName="Sam2ViewsMask"  Foreground="Black" Margin="6,8,0,0" Tag="ViewOverlayMaskA" >
+                                                    <TextBlock Text="Multimask 1" FontSize="18" Margin="0,-7,0,0"/>
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="Checked">
+                                                            <i:CallMethodAction TargetObject="{Binding}" MethodName="RadioButtonChecked"/>
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                </RadioButton>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Score =" FontSize="18" Margin="30,2,0,0"/>
+                                                    <TextBlock Text="{Binding DetectionAScore}" FontSize="18" Margin="6,2,0,0"/>
+                                                </StackPanel>
+                                                <RadioButton GroupName="Sam2ViewsMask"  Foreground="Black" Margin="6,8,0,0" Tag="ViewOverlayMaskB" >
+                                                    <TextBlock Text="Multimask 2" FontSize="18" Margin="0,-7,0,0"/>
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="Checked">
+                                                            <i:CallMethodAction TargetObject="{Binding}" MethodName="RadioButtonChecked"/>
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                </RadioButton>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Score =" FontSize="18" Margin="30,2,0,0"/>
+                                                    <TextBlock Text="{Binding DetectionBScore}" FontSize="18" Margin="6,2,0,0"/>
+                                                </StackPanel>
+                                                <RadioButton GroupName="Sam2ViewsMask"  Foreground="Black" Margin="6,8,0,0" Tag="ViewOverlayMaskC" >
+                                                    <TextBlock Text="Multimask 3" FontSize="18" Margin="0,-7,0,0"/>
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="Checked">
+                                                            <i:CallMethodAction TargetObject="{Binding}" MethodName="RadioButtonChecked"/>
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                </RadioButton>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Score =" FontSize="18" Margin="30,2,0,0"/>
+                                                    <TextBlock Text="{Binding DetectionCScore}" FontSize="18" Margin="6,2,0,0"/>
+                                                </StackPanel>
+                                                <StackPanel Visibility="{Binding IsSamMultiMaskButtonsShown, Converter={StaticResource VisConverter}}">
+                                                    <StackPanel Height="94" Margin="0,18,0,0">
+                                                        <Button Grid.Column="0" Height="90" Width="140" Margin="0,0,0,0" Tag="MultiMaskAccept1" Foreground="Green">
+                                                            <TextBlock TextAlignment="Center" FontSize="20">Add<LineBreak/>MultiMask 1<LineBreak/>To Dataset</TextBlock>
+                                                            <i:Interaction.Triggers>
+                                                                <i:EventTrigger EventName="PreviewMouseDown">
+                                                                    <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                                </i:EventTrigger>
+                                                            </i:Interaction.Triggers>
+                                                            <Button.Visibility>
+                                                                <MultiBinding Converter="{StaticResource VisFlagConverter}">
+                                                                    <Binding Source="1"/>
+                                                                    <Binding Path="MultiMaskState"/>
+                                                                </MultiBinding>
+                                                            </Button.Visibility>
+                                                        </Button>
+                                                        <Button Grid.Column="0" Height="90" Width="140" Margin="0,0,0,0" Tag="MultiMaskAccept2" Foreground="Green">
+                                                            <TextBlock TextAlignment="Center" FontSize="20">Add<LineBreak/>MultiMask 2<LineBreak/>To Dataset</TextBlock>
+                                                            <i:Interaction.Triggers>
+                                                                <i:EventTrigger EventName="PreviewMouseDown">
+                                                                    <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                                </i:EventTrigger>
+                                                            </i:Interaction.Triggers>
+                                                            <Button.Visibility>
+                                                                <MultiBinding Converter="{StaticResource VisFlagConverter}">
+                                                                    <Binding Source="2"/>
+                                                                    <Binding Path="MultiMaskState"/>
+                                                                </MultiBinding>
+                                                            </Button.Visibility>
+                                                        </Button>
+                                                        <Button Grid.Column="0" Height="90" Width="140" Margin="0,0,0,0" Tag="MultiMaskAccept3" Foreground="Green">
+                                                            <TextBlock TextAlignment="Center" FontSize="20">Add<LineBreak/>MultiMask 3<LineBreak/>To Dataset</TextBlock>
+                                                            <i:Interaction.Triggers>
+                                                                <i:EventTrigger EventName="PreviewMouseDown">
+                                                                    <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                                </i:EventTrigger>
+                                                            </i:Interaction.Triggers>
+                                                            <Button.Visibility>
+                                                                <MultiBinding Converter="{StaticResource VisFlagConverter}">
+                                                                    <Binding Source="4"/>
+                                                                    <Binding Path="MultiMaskState"/>
+                                                                </MultiBinding>
+                                                            </Button.Visibility>
+                                                        </Button>
+                                                    </StackPanel>
+
+                                                    <Button Grid.Column="0" Height="70" Width="140" Margin="0,18,0,0" Tag="MultiMaskReject" Foreground="Red">
+                                                        <TextBlock TextAlignment="Center" FontSize="20">Reject<LineBreak/>Multimasks</TextBlock>
+                                                        <i:Interaction.Triggers>
+                                                            <i:EventTrigger EventName="PreviewMouseDown">
+                                                                <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                            </i:EventTrigger>
+                                                        </i:Interaction.Triggers>
+                                                    </Button>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </GroupBox>
+                                        <StackPanel.Visibility>
+                                        <MultiBinding Converter="{StaticResource VisFlagConverter}" Mode="OneWay" >
+                                            <Binding Path="Tag" RelativeSource="{RelativeSource Self}" Mode="OneWay"/>
+                                            <Binding Path="OperationState" Mode="OneWay"/>
+                                        </MultiBinding>
+                                        </StackPanel.Visibility>
+                                    </StackPanel>
+                                     <StackPanel Tag="4">  <!-- Sam2 Multiple -->
+                                        <StackPanel Tag="1">
+                                            <StackPanel >
+                                                <StackPanel Height="94" Margin="0,18,0,0">
+                                                    <Button Grid.Column="0" Height="90" Width="140" Margin="0,0,0,0" Tag="Sam2Accept" Foreground="Green">
+                                                        <TextBlock TextAlignment="Center" FontSize="20">Add<LineBreak/>Detection(s)<LineBreak/>To Dataset</TextBlock>
+                                                        <i:Interaction.Triggers>
+                                                            <i:EventTrigger EventName="PreviewMouseDown">
+                                                                <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                            </i:EventTrigger>
+                                                        </i:Interaction.Triggers>
+                                                    </Button>
+                                                </StackPanel>
+                                                <Button Grid.Column="0" Height="70" Width="140" Margin="0,18,0,0" Tag="Sam2Reject" Foreground="Red">
+                                                    <TextBlock TextAlignment="Center" FontSize="20">Reject<LineBreak/>Detection(s)</TextBlock>
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="PreviewMouseDown">
+                                                            <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                </Button>
+                                            </StackPanel>  <!-- Full Image Mode -->
+                                            <StackPanel.Visibility >
+                                                <MultiBinding Converter="{StaticResource VisFlagConverter}" Mode="OneWay" >
+                                                    <Binding Path="Tag" RelativeSource="{RelativeSource Self}" Mode="OneWay"/>
+                                                    <Binding Path="RBFullImageOrBoxState" Mode="OneWay"/>
+                                                </MultiBinding>
+                                            </StackPanel.Visibility>
+                                        </StackPanel>
+                                        <StackPanel Tag="2"> <!-- Box Mode -->
+                                            <StackPanel Margin="0,12,0,0" >
+                                                <StackPanel HorizontalAlignment="Center">
+                                                    <TextBlock Text="{Binding DetectionMessage}" FontSize="18" Margin="0,10,0,0"  />
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,6,0,0">
+                                                    <StackPanel Width="38">
+                                                        <Button Height="24" Width="34" Margin="0,0,4,0" Tag="RoiLeft" Foreground="Green"
+                                                    Visibility="{Binding IsArrowLeftShowing, Converter={StaticResource VisConverter}}">
+                                                            <TextBlock Text="&#10232;" FontSize="18" Margin="0,-6,0,0"/>
+                                                            <i:Interaction.Triggers>
+                                                                <i:EventTrigger EventName="PreviewMouseDown">
+                                                                    <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                                </i:EventTrigger>
+                                                            </i:Interaction.Triggers>
+                                                        </Button>
+                                                    </StackPanel>
+                                                    <TextBlock Text="Change Detection" FontSize="16" Margin="0,-4,0,0"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    <StackPanel Width="38">
+                                                        <Button Height="24" Width="34" Margin="4,0,0,0" Tag="RoiRight" Foreground="Green"
+                                                    Visibility="{Binding IsArrowRightShowing, Converter={StaticResource VisConverter}}">
+                                                            <TextBlock Text="&#10233;" FontSize="20" Margin="0,-6,0,0"/>
+                                                            <i:Interaction.Triggers>
+                                                                <i:EventTrigger EventName="PreviewMouseDown">
+                                                                    <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                                </i:EventTrigger>
+                                                            </i:Interaction.Triggers>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </StackPanel>                                                
+                                            </StackPanel>
+                                            <StackPanel.Visibility>
+                                                <MultiBinding Converter="{StaticResource VisEqualConverter}" Mode="OneWay" >
+                                                    <Binding Path="Tag" RelativeSource="{RelativeSource Self}" Mode="OneWay"/>
+                                                    <Binding Path="RBFullImageOrBoxState" Mode="OneWay"/>
+                                                </MultiBinding>
+                                            </StackPanel.Visibility>
+                                        </StackPanel>
+                                        <StackPanel.Visibility >
+                                            <MultiBinding Converter="{StaticResource VisFlagConverter}" Mode="OneWay" >
+                                                <Binding Path="Tag" RelativeSource="{RelativeSource Self}" Mode="OneWay"/>
+                                                <Binding Path="OperationState" Mode="OneWay"/>
+                                                <Binding Source="Multi" Mode="OneWay"/>
+                                            </MultiBinding>
+                                        </StackPanel.Visibility>
+                                    </StackPanel>
+                               </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                    <TabItem.Visibility>
+                        <MultiBinding Converter="{StaticResource VisFlagConverter}">
+                            <Binding Source="1"/>
+                            <Binding Path="TabItemState"/>
+                        </MultiBinding>
+                    </TabItem.Visibility>
+                </TabItem>
+                <TabItem Header="Edit" FontSize="14" Tag="Edit">
+                    <Grid Background="Transparent">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1326"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Canvas Background="#A0A0A0" Grid.Row="0" Grid.Column="0" Width="{Binding BS_CanvasWidth}" Height="{Binding BS_CanvasHeight}"
+            ClipToBounds="True" Visibility="{Binding IsRoiCanvasShowing, Converter={StaticResource NotVisibilityConverter}}" >
+                            <Image Source="{Binding BS}" Canvas.Left="{Binding BS_Left}" Canvas.Top="{Binding BS_Top}" Panel.ZIndex="1"
+           Stretch="Fill" HorizontalAlignment="Center" VerticalAlignment="Center" 
+           Width="{Binding BS_Width}" Height="{Binding BS_Height}">
+                            </Image>
+                            <Canvas Canvas.Left="{Binding BS_Left}" Canvas.Top="{Binding BS_Top}" Width="{Binding BS_Width}" Height="{Binding BS_Height}" Background="Transparent" 
+                                Panel.ZIndex="2" Tag="Main">
+                                <ItemsControl ItemsSource="{Binding MainLines}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <Canvas />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Line X1="{Binding X1}" Y1="{Binding Y1}" X2="{Binding X2}" Y2="{Binding Y2}" Stroke="{Binding Color}" StrokeThickness="3" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="PreviewMouseDown">
+                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="ImageMouseDown"/>
+                                    </i:EventTrigger>
+                                    <!--
+                    <i:EventTrigger EventName="PreviewMouseRightButtonDown">
+                        <i:CallMethodAction TargetObject="{Binding}" MethodName="PanMouseRightButtonDown"/>
+                    </i:EventTrigger>
+                    -->
+                                    <i:EventTrigger EventName="PreviewMouseUp">
+                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="ImageMouseUp"/>
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="PreviewMouseMove">
+                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="ImageMouseMove"/>
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="MouseLeave">
+                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="ImageMouseLeave"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Canvas>
+                        </Canvas>
+                        <Canvas Background="#A0A0A0" Grid.Row="0" Grid.Column="0" Width="{Binding BS_CanvasWidth}" Height="{Binding BS_CanvasHeight}"
+            ClipToBounds="True" Visibility="{Binding IsRoiCanvasShowing, Converter={StaticResource VisConverter}}" >
+                            <Image Source="{Binding BS}" Canvas.Left="{Binding BS_Roi_Left}" Canvas.Top="{Binding BS_Roi_Top}" Panel.ZIndex="1"
+           Stretch="Fill" HorizontalAlignment="Center" VerticalAlignment="Center" 
+           Width="{Binding BS_Roi_Width}" Height="{Binding BS_Roi_Height}">
+                            </Image>
+                            <Canvas Canvas.Left="{Binding BS_Roi_Left}" Canvas.Top="{Binding BS_Roi_Top}" Width="{Binding BS_Roi_Width}" Height="{Binding BS_Roi_Height}" Background="Transparent" 
+            Panel.ZIndex="2" Tag="Box">
+                                <ItemsControl ItemsSource="{Binding Lines}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <Canvas />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Line X1="{Binding X1}" Y1="{Binding Y1}" X2="{Binding X2}" Y2="{Binding Y2}" Stroke="{Binding Color}" StrokeThickness="3" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="PreviewMouseDown">
+                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="ImageMouseDown"/>
+                                    </i:EventTrigger>
+                                    <!--
+                    <i:EventTrigger EventName="PreviewMouseRightButtonDown">
+                        <i:CallMethodAction TargetObject="{Binding}" MethodName="PanMouseRightButtonDown"/>
+                    </i:EventTrigger>
+                    -->
+                                    <i:EventTrigger EventName="PreviewMouseUp">
+                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="ImageMouseUp"/>
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="PreviewMouseMove">
+                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="ImageMouseMove"/>
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="MouseLeave">
+                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="ImageMouseLeave"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Canvas>
+                        </Canvas>
+                        <StackPanel Grid.Column="1">
+                            <StackPanel HorizontalAlignment="Center" >
+                                <TextBlock Text="Edit Mode" FontSize="24" Margin="0,10,0,0"/>
+                            </StackPanel>
+                            <StackPanel Height="680">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="30,12,0,0">
+                                        <RadioButton GroupName="RBFullImageOrBox"  Foreground="Black" Margin="00,5,0,0" Tag="1" >
+                                            <TextBlock Text="Full Image" FontSize="22" Margin="0,-8,0,0"/>
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Checked">
+                                                    <i:CallMethodAction TargetObject="{Binding}" MethodName="RadioButtonChecked"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                            <RadioButton.IsChecked>
+                                                <MultiBinding Converter="{StaticResource BoolEqualConverter}" Mode="OneWay" >
+                                                    <Binding Path="Tag" RelativeSource="{RelativeSource Self}" Mode="OneWay"/>
+                                                    <Binding Path="RBFullImageOrBoxState" Mode="OneWay"/>
+                                                </MultiBinding>
+                                            </RadioButton.IsChecked>
+                                        </RadioButton>
+                                        <RadioButton GroupName="RBFullImageOrBox"  Foreground="Black" Margin="30,5,0,0" Tag="2" >
+                                            <TextBlock Text="Box" FontSize="22" Margin="0,-8,0,0"  />
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Checked">
+                                                    <i:CallMethodAction TargetObject="{Binding}" MethodName="RadioButtonChecked"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                            <RadioButton.IsChecked>
+                                                <MultiBinding Converter="{StaticResource BoolEqualConverter}" Mode="OneWay" >
+                                                    <Binding Path="Tag" RelativeSource="{RelativeSource Self}" Mode="OneWay"/>
+                                                    <Binding Path="RBFullImageOrBoxState" Mode="OneWay"/>
+                                                </MultiBinding>
+                                            </RadioButton.IsChecked>
+                                        </RadioButton>
+                                        <StackPanel.Visibility>
+                                            <MultiBinding Converter="{StaticResource VisFlagConverter}">
+                                                <Binding Source="3"/>
+                                                <Binding Path="SelectedTabFlag"/>
+                                            </MultiBinding>
+                                        </StackPanel.Visibility>
+                                    </StackPanel>
+                                     <StackPanel Tag="4">  <!-- Sam2 Edit -->
+                                        <StackPanel Tag="1">   <!-- Full Image Mode -->
+                                            <StackPanel >
+                                                <StackPanel HorizontalAlignment="Center">
+                                                    <StackPanel  Orientation="Horizontal">
+                                                        <TextBlock Text="Label:" FontSize="20" Margin="0,10,0,0"  />
+                                                        <TextBlock Text="{Binding MainLabel}" FontSize="20" Margin="10,10,0,0"  />
+                                                    </StackPanel>
+                                                </StackPanel>
+                                                <StackPanel  Visibility="{Binding IsRoiCanvasShowing, Converter={StaticResource NotVisibilityConverter}}">
+                                                    <GroupBox Header="Editor" Margin="10,50,5,5" FontSize="14">
+                                                        <StackPanel Width="240" Height="300">
+                                                            <TextBlock Text="Left Drag - Add Segmentation" Width="240" FontSize="16" Margin="0,4,0,0" Foreground="Green"/>
+                                                            <TextBlock Text="After adding segmentation" Width="240" FontSize="16" Margin="0,4,0,0" Foreground="Blue"/>
+                                                            <TextBlock Text="Editing - Can be completed" Width="240" FontSize="16" Margin="0,4,0,0" Foreground="Blue"/>
+                                                            <TextBlock Text="  by selecting 'Box' tab above" Width="240" FontSize="16" Margin="0,4,0,0" Foreground="Blue"/>
+                                                            <TextBlock Text="Renaming - Can be completed" Width="240" FontSize="16" Margin="0,4,0,0" Foreground="Blue"/>
+                                                            <TextBlock Text="  by selecting 'DataSet'" Width="240" FontSize="16" Margin="0,4,0,0" Foreground="Blue"/>
+
+                                                            <StackPanel Visibility="{Binding IsMainLinesPopulated, Converter={StaticResource VisNotHiddenConverter}}">
+                                                                <Button Margin="0,14,0,0" Height="64" Width="220" 
+                                                                        FontSize="18" Foreground="Green" Tag="SegmentationAddToDataSet">
+                                                                    <TextBlock TextAlignment="Center" FontSize="20">Add Segmentation<LineBreak/>To Dataset</TextBlock>
+                                                                    <i:Interaction.Triggers>
+                                                                        <i:EventTrigger EventName="PreviewMouseDown">
+                                                                            <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                                        </i:EventTrigger>
+                                                                    </i:Interaction.Triggers>
+                                                                </Button>
+                                                                <Button Content="Clear Last Segmentation" Margin="0,7,0,0" Height="42" Width="220" FontSize="18" Tag="SegmentationEditClear"
+                                                                        Foreground="Red">
+                                                                    <i:Interaction.Triggers>
+                                                                        <i:EventTrigger EventName="PreviewMouseDown">
+                                                                            <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                                        </i:EventTrigger>
+                                                                    </i:Interaction.Triggers>
+                                                                </Button>
+                                                            </StackPanel>
+                                                        </StackPanel>
+                                                    </GroupBox>
+                                                    <StackPanel Margin= "0,20,0,0" HorizontalAlignment="Center">
+                                                        <CheckBox Foreground="Black" Margin="0,5,0,0" Tag="Padding" IsChecked="{Binding IsBoxPadding}">
+                                                            <TextBlock Text="Add Padding to Boxes" FontSize="20" Margin="4,-6,0,0"  />
+                                                        </CheckBox>
+                                                        <CheckBox Foreground="Black" Margin="0,15,0,0" Tag="Split" IsChecked="{Binding IsSplitContourMode}">
+                                                            <TextBlock Text="Split Segmentation Mode" FontSize="20" Margin="4,-6,0,0"  />
+                                                        </CheckBox>
+                                                    </StackPanel>
+                                                    <TextBlock Text="Automated segmentation" Width="250" FontSize="16" Margin="0,10,0,0" Foreground="Blue"/>
+                                                    <TextBlock Text=" improvement and auto renaming" Width="250" FontSize="16" Margin="0,3,0,0" Foreground="Blue"/>
+                                                    <TextBlock Text=" are not included in open source " Width="250" FontSize="16" Margin="0,3,0,0" Foreground="Blue"/>
+                                                    <TextBlock Text=" version but can be provided " Width="250" FontSize="16" Margin="0,3,0,0" Foreground="Blue"/>
+                                                    <TextBlock Text=" in proprietary version " Width="250" FontSize="16" Margin="0,3,0,0" Foreground="Blue"/>
+                                                </StackPanel>
+                                            </StackPanel>                                            
+                                            <StackPanel.Visibility >
+                                                <MultiBinding Converter="{StaticResource VisFlagConverter}" Mode="OneWay" >
+                                                    <Binding Path="Tag" RelativeSource="{RelativeSource Self}" Mode="OneWay"/>
+                                                    <Binding Path="RBFullImageOrBoxState" Mode="OneWay"/>
+                                                </MultiBinding>
+                                            </StackPanel.Visibility>
+                                        </StackPanel>
+                                        <StackPanel Tag="2">  <!-- Box Mode -->
+                                            <StackPanel Margin="0,2,0,0" >
+                                                <StackPanel HorizontalAlignment="Center">
+                                                    <StackPanel  Orientation="Horizontal" Margin="0,10,0,0">
+                                                        <TextBlock Text="Label:" FontSize="20" Margin="0"  />
+                                                        <TextBlock Text="{Binding MainLabel}" FontSize="20" Margin="10,0,0,0"  />
+                                                    </StackPanel>
+                                                </StackPanel>
+                                                <StackPanel HorizontalAlignment="Center">
+                                                    <StackPanel  Orientation="Horizontal" Margin="0,2,0,0">
+                                                        <TextBlock Text="SubLabel:" FontSize="20" Margin="0"  />
+                                                        <TextBlock Text="{Binding SubLabel}" FontSize="20" Margin="10,0,0,0"  />
+                                                    </StackPanel>
+                                                </StackPanel>
+                                                    <StackPanel HorizontalAlignment="Center">
+                                                    <TextBlock Text="{Binding DetectionMessage}" FontSize="18" Margin="0,10,0,0"  />
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,6,0,0">
+                                                    <StackPanel Width="38">
+                                                        <Button Height="24" Width="34" Margin="0,0,4,0" Tag="RoiLeft" Foreground="Green"
+                                                    Visibility="{Binding IsArrowLeftShowing, Converter={StaticResource VisConverter}}">
+                                                            <TextBlock Text="&#10232;" FontSize="18" Margin="0,-6,0,0"/>
+                                                            <i:Interaction.Triggers>
+                                                                <i:EventTrigger EventName="PreviewMouseDown">
+                                                                    <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                                </i:EventTrigger>
+                                                            </i:Interaction.Triggers>
+                                                        </Button>
+                                                    </StackPanel>
+                                                    <TextBlock Text="Change Detection" FontSize="16" Margin="0,-4,0,0"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    <StackPanel Width="38">
+                                                        <Button Height="24" Width="34" Margin="4,0,0,0" Tag="RoiRight" Foreground="Green"
+                                                    Visibility="{Binding IsArrowRightShowing, Converter={StaticResource VisConverter}}">
+                                                            <TextBlock Text="&#10233;" FontSize="20" Margin="0,-6,0,0"/>
+                                                            <i:Interaction.Triggers>
+                                                                <i:EventTrigger EventName="PreviewMouseDown">
+                                                                    <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                                </i:EventTrigger>
+                                                            </i:Interaction.Triggers>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                                <StackPanel Height="94" Margin="0,18,0,0">
+                                                    <Button Grid.Column="0" Height="90" Width="140" Margin="0,0,0,0" Tag="UpdateLabel" Foreground="Green"
+                                                            Visibility="{Binding IsShowUpdateLabelButton, Converter={StaticResource VisConverter}}">
+                                                        <TextBlock TextAlignment="Center" FontSize="20">Update This<LineBreak/>Detection<LineBreak/>To Dataset</TextBlock>
+                                                        <i:Interaction.Triggers>
+                                                            <i:EventTrigger EventName="PreviewMouseDown">
+                                                                <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                            </i:EventTrigger>
+                                                        </i:Interaction.Triggers>
+                                                    </Button>
+                                                </StackPanel>
+                                                <StackPanel  Visibility="{Binding IsRoiCanvasShowing, Converter={StaticResource VisConverter}}">
+                                                    <GroupBox Header="Editor" Margin="10,50,5,5" FontSize="14">
+                                                        <StackPanel Width="250" Height="300" HorizontalAlignment="Left">
+                                                            <StackPanel Visibility="{Binding IsSplitContourMode, Converter={StaticResource NotVisibilityConverter}}">
+                                                                <TextBlock Text="Left Drag - Add Contour" Width="240" FontSize="16" Margin="0,4,0,0" Foreground="Green"/>
+                                                                <TextBlock Text="Right Drag - Subtract Contour" Width="240" FontSize="16" Margin="0,4,0,0" Foreground="Red"/>
+                                                            </StackPanel>
+                                                            <StackPanel Visibility="{Binding IsSplitContourMode, Converter={StaticResource VisConverter}}">
+                                                                <TextBlock Text="Right Drag - Split segmentation" Width="240" FontSize="16" Margin="0,4,0,0" Foreground="Red"/>
+                                                                <TextBlock Text="                  into 2 segmentations" Width="240" FontSize="16" Margin="0,4,0,0" Foreground="Red"/>
+
+                                                            </StackPanel>
+                                                            <StackPanel Visibility="{Binding IsLinesPopulated, Converter={StaticResource VisNotHiddenConverter}}">
+                                                                <Button Content="Process Edits" Margin="0,14,0,0" Height="36" Width="126" FontSize="18" Tag="EditDetection">
+                                                                    <i:Interaction.Triggers>
+                                                                        <i:EventTrigger EventName="PreviewMouseDown">
+                                                                            <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                                        </i:EventTrigger>
+                                                                    </i:Interaction.Triggers>
+                                                                </Button>
+                                                                <Button Content="Clear Last Edit" Margin="0,7,0,0" Height="36" Width="126" FontSize="18" Tag="EditClearLast">
+                                                                    <i:Interaction.Triggers>
+                                                                        <i:EventTrigger EventName="PreviewMouseDown">
+                                                                            <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                                        </i:EventTrigger>
+                                                                    </i:Interaction.Triggers>
+                                                                </Button>
+                                                                <Button Content="Clear All Edits" Margin="0,7,0,0" Height="36" Width="126" FontSize="18" Tag="EditClearAll">
+                                                                    <i:Interaction.Triggers>
+                                                                        <i:EventTrigger EventName="PreviewMouseDown">
+                                                                            <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                                        </i:EventTrigger>
+                                                                    </i:Interaction.Triggers>
+                                                                </Button>
+                                                            </StackPanel>
+                                                            <TextBlock Text="------------------------" Width="120" Margin="4,8,0,0" FontSize="12" Foreground="Gray"/>
+                                                            <Button Height="62" Width="120" Margin="0,6,0,0" Tag="RemoveNoise" Foreground="Green">
+                                                                <TextBlock TextAlignment="Center" FontSize="18">Remove Small<LineBreak/>Contours</TextBlock>
+                                                                <i:Interaction.Triggers>
+                                                                    <i:EventTrigger EventName="PreviewMouseDown">
+                                                                        <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                                    </i:EventTrigger>
+                                                                </i:Interaction.Triggers>
+                                                            </Button>
+
+                                                        </StackPanel>
+                                                    </GroupBox>
+                                              </StackPanel>
+                                            </StackPanel>
+                                            <StackPanel.Visibility>
+                                                <MultiBinding Converter="{StaticResource VisEqualConverter}" Mode="OneWay" >
+                                                    <Binding Path="Tag" RelativeSource="{RelativeSource Self}" Mode="OneWay"/>
+                                                    <Binding Path="RBFullImageOrBoxState" Mode="OneWay"/>
+                                                </MultiBinding>
+                                            </StackPanel.Visibility>
+                                        </StackPanel>
+                                        <StackPanel.Visibility >
+                                            <MultiBinding Converter="{StaticResource VisFlagConverter}" Mode="OneWay" >
+                                                <Binding Path="Tag" RelativeSource="{RelativeSource Self}" Mode="OneWay"/>
+                                                <Binding Path="OperationState" Mode="OneWay"/>
+                                                <Binding Source="Multi" Mode="OneWay"/>
+                                            </MultiBinding>
+                                        </StackPanel.Visibility>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                    <TabItem.Visibility>
+                        <MultiBinding Converter="{StaticResource VisFlagConverter}">
+                            <Binding Source="2"/>
+                            <Binding Path="TabItemState"/>
+                        </MultiBinding>
+                    </TabItem.Visibility>
+                </TabItem>
+                <TabItem Header="DataSet" FontSize="14" Tag="DataSet">
+                    <Grid Background="Transparent" Width="1600" Height="926">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="930"/>
+                        </Grid.RowDefinitions>
+                    </Grid>
+                    <TabItem.Visibility>
+                        <MultiBinding Converter="{StaticResource VisFlagConverter}">
+                            <Binding Source="4"/>
+                            <Binding Path="TabItemState"/>
+                        </MultiBinding>
+                    </TabItem.Visibility>
+                </TabItem>
+                <TabItem Header="Setup" FontSize="14" Tag="Setup">
+                    <Grid Background="Transparent">
+                    </Grid>
+                    <TabItem.Visibility>
+                        <MultiBinding Converter="{StaticResource VisFlagConverter}">
+                            <Binding Source="16"/>
+                            <Binding Path="TabItemState"/>
+                        </MultiBinding>
+                    </TabItem.Visibility>
+                </TabItem>
+                <TabItem Header="Event Log" FontSize="14" Tag="Console">
+                    <Grid Background="Transparent">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1686"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                    </Grid>
+                    <TabItem.Visibility>
+                        <MultiBinding Converter="{StaticResource VisFlagConverter}">
+                            <Binding Source="32"/>
+                            <Binding Path="TabItemState"/>
+                        </MultiBinding>
+                    </TabItem.Visibility>
+                </TabItem>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <i:CallMethodAction TargetObject="{Binding}" MethodName="TabControlChanged"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </TabControl>
+        </Grid>
+        <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal">
+            <StackPanel Margin="160,0,0,0" Width="1100" Height="40">
+                <TextBlock Text = "{Binding UserMessage}" FontSize="20" />
+            </StackPanel>
+            <StackPanel Width="30" Height="40">
+            </StackPanel>
+            <StackPanel Width="600" Height="40">
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton GroupName="RBMaskView"  Foreground="Black" Margin="00,5,0,0" Tag="1" >
+                        <TextBlock Text="Full Mask" FontSize="22" Margin="0,-8,0,0"/>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Checked">
+                                <i:CallMethodAction TargetObject="{Binding}" MethodName="RadioButtonChecked"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <RadioButton.IsChecked>
+                            <MultiBinding Converter="{StaticResource BoolEqualConverter}" Mode="OneWay" >
+                                <Binding Path="Tag" RelativeSource="{RelativeSource Self}" Mode="OneWay"/>
+                                <Binding Path="RBMaskViewState" Mode="OneWay"/>
+                            </MultiBinding>
+                        </RadioButton.IsChecked>
+                    </RadioButton>
+                    <RadioButton GroupName="RBMaskView"  Foreground="Black" Margin="30,5,0,0" Tag="2" >
+                        <TextBlock Text="Original" FontSize="22" Margin="0,-8,0,0"  />
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Checked">
+                                <i:CallMethodAction TargetObject="{Binding}" MethodName="RadioButtonChecked"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <RadioButton.IsChecked>
+                            <MultiBinding Converter="{StaticResource BoolEqualConverter}" Mode="OneWay" >
+                                <Binding Path="Tag" RelativeSource="{RelativeSource Self}" Mode="OneWay"/>
+                                <Binding Path="RBMaskViewState" Mode="OneWay"/>
+                            </MultiBinding>
+                        </RadioButton.IsChecked>
+                    </RadioButton>
+                    <RadioButton GroupName="RBMaskView"  Foreground="Black" Margin="30,5,0,0" Tag="3">
+                        <TextBlock Text="Overlayed Mask" FontSize="22" Margin="0,-8,0,0"/>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Checked">
+                                <i:CallMethodAction TargetObject="{Binding}" MethodName="RadioButtonChecked"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <RadioButton.IsChecked>
+                            <MultiBinding Converter="{StaticResource BoolEqualConverter}" Mode="OneWay" >
+                                <Binding Path="Tag" RelativeSource="{RelativeSource Self}" Mode="OneWay"/>
+                                <Binding Path="RBMaskViewState" Mode="OneWay"/>
+                            </MultiBinding>
+                        </RadioButton.IsChecked>
+                    </RadioButton>
+                    <StackPanel.Visibility>
+                        <MultiBinding Converter="{StaticResource VisFlagConverter}">
+                            <Binding Source="3"/>
+                            <Binding Path="SelectedTabFlag"/>
+                            <Binding Source="RBMask" Mode="OneWay"/>
+                        </MultiBinding>
+                    </StackPanel.Visibility>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>

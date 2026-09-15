@@ -1,5 +1,6 @@
 ﻿// Copyright (c) 2026 Robert W. McClellan, Matthew J. McClellan
 // Licensed under the MIT License. https://github.com/rwmcclellan/SamNet.Native
+// See THIRD_PARTY.md in root directory for third party licenses and notices.
 
 using System;
 using System.Collections.Concurrent;

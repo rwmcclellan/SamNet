@@ -131,4 +131,4 @@ GNU General Public License v3.0 License – see [LICENSE](LICENSE)
 
 [sam3.cpp](https://github.com/pabannier/sam3.cpp)  by PABannier  
 Meta AI for the original Segment Anything models  
-AI support from Grok, Pe
+AI support from Grok, Perplexity and ChatGPT

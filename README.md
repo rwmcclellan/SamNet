@@ -2,11 +2,11 @@
 
 WPF desktop application for **Segment Anything Model 2** and **Segment Anything Model 3** using the high-performance [sam3.cpp](https://github.com/PABannier/sam3.cpp) C++ library (ggml-based, no Python / PyTorch required).
 
-![SamNet Image Segmentation Demo](SamNetPrivate/Media/TomatoSegment.gif)
+![SamNet Image Segmentation Demo](SamNet/Media/TomatoSegment.gif)
 
 <a href="https://www.vecteezy.com/free-photos/gardening">Gardening Stock photos by Vecteezy</a>
 
-![SamNet Image Segmentation Demo](SamNetPrivate/Media/TomatoDataSet.png)
+![SamNet Image Segmentation Demo](SamNet/Media/TomatoDataSet.png)
 
 ## Features
 
@@ -78,7 +78,7 @@ SamNet/
 - Segmentation is a critical step in feeding images into a model for processing.  Defects can cause erroneous results
 - Simple example of manual fine tuning below:
   
-![SamNet Image Segmentation Demo](SamNetPrivate/Media/TomatoEdit.gif)
+![SamNet Image Segmentation Demo](SamNet/Media/TomatoEdit.gif)
 
 <a href="https://www.vecteezy.com/free-photos/gardening">Gardening Stock photos by Vecteezy</a>
 

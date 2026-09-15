@@ -41,7 +41,7 @@ WPF desktop application for **Segment Anything Model 2** and **Segment Anything 
    - `ggml.dll`, `ggml-base.dll`, `ggml-cpu.dll`
    - `SamNet.Native.dll`
 3. Download a compatible model from the [sam3.cpp model zoo](https://huggingface.co/PABannier/sam3.cpp) and place it somewhere accessible
-4. Open `SamImageSharp.slnx` in Visual Studio and build/run
+4. Open `SamNet.slnx` in Visual Studio and build/run
 5. In the app:
    - Load an image
    - Load a model

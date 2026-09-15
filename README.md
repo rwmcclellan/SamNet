@@ -120,7 +120,7 @@ SamNet/
 
 - [sam3.cpp](https://github.com/rwmcclellan/sam3.cpp) – core inference engine - MIT license
 - Emgu.CV – OpenCV wrapper for .NET
-- ApexIP – internal image-processing helpers
+- OpenIP – internal image-processing helpers
 - [SamNet.Native](https://github.com/rwmcclellan/SamNet.Native) - C# wrapper for sam3.cpp - MIT license
 
 ## License

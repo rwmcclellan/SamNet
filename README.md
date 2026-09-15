@@ -127,8 +127,15 @@ SamNet/
 
 GNU General Public License v3.0 License – see [LICENSE](LICENSE)
 
+## Incorporated components license information
+
+[Meta Sam3 License](https://sam3ai.com/license/) - Meta Sam3 Model Weights  
+[Meta Sam2 License](https://github.com/facebookresearch/sam2) - Meta Sam2 Model Weights - Licensed under the Apache License, Version 2.0  
+[Emgu License](https://www.emgu.com/wiki/index.php/Licensing:#Open_Source_License) - GNU General Public License v3.0 License  
+
 ## Acknowledgements
 
 [sam3.cpp](https://github.com/pabannier/sam3.cpp)  by PABannier  
 Meta AI for the original Segment Anything models  
+Emgu.CV-4 - C# wrapper for OpenCV  
 AI support from Grok, Perplexity and ChatGPT

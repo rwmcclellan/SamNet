@@ -2,6 +2,8 @@
 
 WPF desktop application for **Segment Anything Model 2** and **Segment Anything Model 3** using the high-performance [sam3.cpp](https://github.com/PABannier/sam3.cpp) C++ library (ggml-based, no Python / PyTorch required).
 
+[Link to repository](https://github.com/rwmcclellan/SamNet)  
+
 ![SamNet Image Segmentation Demo](SamNet/Media/TomatoSegment.gif)
 
 <a href="https://www.vecteezy.com/free-photos/gardening">Gardening Stock photos by Vecteezy</a>

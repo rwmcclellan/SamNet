@@ -19,7 +19,6 @@ namespace SamNet
         private SamWorker? Work;
         private ConcurrentQueue<object>? MessageToWorker;
 
-        private EdwardsMessageBus logBus;
         private EdwardsMessageBus eventBus;
 
         private AutoResetEvent are;

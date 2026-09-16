@@ -238,7 +238,7 @@
                         <StackPanel Grid.Row="0" Grid.Column="1" Style="{StaticResource EnabledDisabledStackPanel}" IsEnabled="{Binding IsSetupImportEnabled}" >
                             <GroupBox Header="Import from existing dataset" Margin="10,5,5,5" FontSize="20" Foreground="Blue" >
                                 <StackPanel Width="680" Height="730" Margin="20">
-                                    <StackPanel Margin="0,0,0,0" HorizontalAlignment="Left">
+                                    <StackPanel Margin="0,0,0,0" HorizontalAlignment="Left" Visibility="{Binding IsExportFolderValid, Converter={StaticResource VisConverter}}">
                                         <StackPanel Orientation="Horizontal">
                                             <StackPanel Margin="0,0,0,0" HorizontalAlignment="Left" Width="500">
                                                 <TextBlock TextAlignment="Left" FontSize="24" Foreground="Black">Import From:</TextBlock>
@@ -255,6 +255,30 @@
                                                 <Button Height="67" Width="120" Margin="0,32,0,0" Tag="Import" Foreground="Green" 
                                                         Visibility="{Binding IsShowImportButton, Converter={StaticResource VisConverter}}">
                                                     <TextBlock TextAlignment="Center" FontSize="20">Import<LineBreak/>Json</TextBlock>
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="PreviewMouseDown">
+                                                            <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                </Button>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,0,0" HorizontalAlignment="Left" Visibility="{Binding IsExportFolderValid, Converter={StaticResource NotVisibilityConverter}}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <StackPanel>
+                                                <TextBlock TextAlignment="Left" FontSize="24" Foreground="Black">Export folder does not exist</TextBlock>
+                                                <TextBlock Text ="{Binding ExportFolder}" Margin="0,8,0,0" TextAlignment="Left" FontSize="24" Foreground="Black"/>
+                                                <TextBlock Text ="To modify the export folder location" Margin="0,20,0,0" TextAlignment="Left" FontSize="24" Foreground="Black"/>
+                                                <TextBlock Text ="Edit the file 'SamNet.Dll.config' in the SamNet folder " Margin="0,4,0,0" TextAlignment="Left" FontSize="24" Foreground="Black"/>
+                                                <TextBlock Text ="Find 'CocoEditFolder' " Margin="0,4,0,0" TextAlignment="Left" FontSize="24" Foreground="Black"/>
+                                                <TextBlock Text ="Change the folder location between the 'Value' tags" Margin="0,4,0,0" TextAlignment="Left" FontSize="24" Foreground="Black"/>
+                                                <TextBlock Text ="Restart program" Margin="0,4,0,0" TextAlignment="Left" FontSize="24" Foreground="Black"/>
+                                                <Button Height="67" Width="600" Margin="0,32,0,0" Tag="CreateExportFolder" Foreground="Green" >
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="Create:  " TextAlignment="Center" FontSize="20"/>
+                                                        <TextBlock Text="{Binding ExportFolder}" TextAlignment="Center" FontSize="20"/>
+                                                    </StackPanel>                                                    
                                                     <i:Interaction.Triggers>
                                                         <i:EventTrigger EventName="PreviewMouseDown">
                                                             <i:CallMethodAction TargetObject="{Binding}" MethodName="ButtonPressed"/>

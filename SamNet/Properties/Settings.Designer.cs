@@ -8,59 +8,45 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SamNet.Properties
-{
-
-
+namespace SamNet.Properties {
+    
+    
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.14.0.0")]
-    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase
-    {
-
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "18.10.0.0")]
+    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
+        
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
-
-        public static Settings Default
-        {
-            get
-            {
+        
+        public static Settings Default {
+            get {
                 return defaultInstance;
             }
         }
-
+        
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("C:\\Temp\\SamModels")]
-        public string ModelsFolder
-        {
-            get
-            {
+        public string ModelsFolder {
+            get {
                 return ((string)(this["ModelsFolder"]));
             }
         }
-
+        
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("c:\\Temp\\SamImages")]
-        public string ImagesFolder
-        {
-            get
-            {
+        public string ImagesFolder {
+            get {
                 return ((string)(this["ImagesFolder"]));
             }
         }
-
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("c:\\Temp\\CocoExport")]
-        public string CocoExportFolder
-        {
-            get
-            {
+        public string CocoExportFolder {
+            get {
                 return ((string)(this["CocoExportFolder"]));
-            }
-            set
-            {
-                this["CocoExportFolder"] = value;
             }
         }
     }

@@ -10,14 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="OpenIPOld.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Remove="resourceDictionary.xaml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Emgu.CV" Version="4.13.0.5924" />
     <PackageReference Include="Emgu.CV.Bitmap" Version="4.13.0.5924" />
     <PackageReference Include="Emgu.CV.runtime.windows" Version="4.13.0.5924" />
@@ -27,12 +19,6 @@
   <ItemGroup>
     <ProjectReference Include="..\OpenIP\OpenIP.csproj" />
     <ProjectReference Include="..\SamNet.Native\SamNet.Native.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="SamNet.Native">
-      <HintPath>..\Lib\SamNet.Native.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>

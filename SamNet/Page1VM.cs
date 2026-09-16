@@ -46,6 +46,7 @@ namespace SamNet
 
         private bool _IsClearPoints;
         private bool _IsClickListPopulated;
+        private bool _IsExportFolderValid;
         private bool _IsSam3Enabled;
         private bool _IsUIEnabled;
         private bool _Is_RB_Sam2PVS_Checked;
@@ -155,6 +156,8 @@ namespace SamNet
             IsClearPoints = false;
             IsClickListPopulated = false;
             Is_RB_Sam2Single_Checked = true;
+
+            
         }
 
         public void IsInFocus(int caller, object? payload = null)
@@ -375,6 +378,20 @@ namespace SamNet
                 }
             }
         }
+
+        public bool IsExportFolderValid
+        {
+            get { return _IsExportFolderValid; }
+            set
+            {
+                if (_IsExportFolderValid != value)
+                {
+                    _IsExportFolderValid = value;
+                    OnPropertyChanged("IsExportFolderValid");
+                }
+            }
+        }   
+
         public bool IsUIEnabled
         {
             get { return _IsUIEnabled; }
@@ -856,6 +873,11 @@ namespace SamNet
                     }
                     if ((SamPoints.Count() == 0) && (SamRectangles.Count() == 0)) IsClickListPopulated = false;
                 }
+                else if (tag.Equals("CreateExportFolder"))
+                {
+                    Directory.CreateDirectory(ExportFolder);
+                    IsExportFolderValid = true;
+                }
                 else if (tag.Equals("Import"))
                 {
                     ProcessImportRequest(SelectedExportFolder);
@@ -1264,11 +1286,12 @@ namespace SamNet
                 ImagePath = "";
             }
         }
-        private void FetchExportFolderInfo()
+        private bool FetchExportFolderInfo()
         {
             ExportFolder = "C:\\Temp\\ExportFolderHardcoded";
             string candidate = Properties.Settings.Default.CocoExportFolder.ToString();
             if (candidate.Length > 0) ExportFolder = candidate;
+            if (Directory.Exists(ExportFolder) == false) return false;
             if (ExportFolder.EndsWith("\\") == false) ExportFolder += "\\";
 
             string[] firstLevelSubdirs = Directory.GetDirectories(ExportFolder, "*", SearchOption.TopDirectoryOnly);
@@ -1277,6 +1300,8 @@ namespace SamNet
             {
                 ExportFolders.Add(dir);
             }
+            IsExportFolderValid = true;
+            return true;
         }
         private void ProcessImportRequest(string folder)
         {

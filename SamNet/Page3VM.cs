@@ -1099,8 +1099,11 @@ namespace SamNet
                     ExportFolder = "C:\\Temp\\ExportFolderHardcoded";
                     string candidate = Properties.Settings.Default.CocoExportFolder.ToString();
                     if (candidate.Length > 0) ExportFolder = candidate;
-                    if (ExportFolder.EndsWith("\\") == false) ExportFolder += "\\";
-                    PerformExportCheck();
+                    if (Directory.Exists(ExportFolder))
+                    {
+                        if (ExportFolder.EndsWith("\\") == false) ExportFolder += "\\";
+                        PerformExportCheck();
+                    }
                 }
                 else if (tag.Equals("NewSam"))   //  Swap views
                 {

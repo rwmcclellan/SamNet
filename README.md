@@ -138,5 +138,5 @@ See [Third-Party-Notices.md](Third-Party-Notices.md) for licenses and attributio
 [sam3.cpp](https://github.com/pabannier/sam3.cpp)  by PABannier  
 Meta AI for the original Segment Anything models  
 OpenCvSharp - C# wrapper for OpenCV  
-AI support from Grok, Perplexity and ChatGPT
-
+AI support from Grok, Perplexity and ChatGPT  
+Codebuff for migration from Emgu to OpenCvSharp

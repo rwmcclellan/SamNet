@@ -1,10 +1,8 @@
 ﻿// Copyright (c) 2026 Robert W. McClellan, Matthew J. McClellan
-// Licensed under the GNU General Public License v3.0. See LICENSE in the repository root.
+// Licensed under the MIT License. See LICENSE in the repository root.
 
 using Open.IP;
-using Emgu.CV;
-using Emgu.CV.CvEnum;
-using Emgu.CV.Structure;
+using OpenCvSharp;
 using SamNet.Native;
 using static SamNet.Native.SamNative;
 
@@ -53,8 +51,8 @@ namespace SamNet
             Mat mtWork = new Mat();
             try
             {
-                mt = new Mat(SamModel.mtMask.Rows, SamModel.mtMask.Cols, SamModel.mtMask.Depth, 1);
-                mt.SetTo(new MCvScalar(0));
+                mt = new Mat(SamModel.mtMask.Rows, SamModel.mtMask.Cols, SamModel.mtMask.Depth());
+                mt.SetTo(new Scalar(0));
                 foreach (var set in SamModel.DataSet)
                 {
                     byte intensity = 255;
@@ -63,7 +61,7 @@ namespace SamNet
                     OpenSafeMat osm = OpenIP.ListOfIntToBinaryMask(set.MaskRle, mt.Rows, mt.Cols, intensity);
                     if (osm.IsSuccess)
                     {
-                        CvInvoke.BitwiseOr(mt, osm.Mt, mt);
+                        Cv2.BitwiseOr(mt, osm.Mt, mt);
                         osm.Mt.Dispose();
                     }
                     else
@@ -90,13 +88,13 @@ namespace SamNet
             Mat mt = new Mat();
             try
             {
-                SamModel.mtMask.SetTo(new MCvScalar(0));
+                SamModel.mtMask.SetTo(new Scalar(0));
                 for (int i = 0; i < SamModel.WorkingDetections.Count(); i++)
                 {
-                    CvInvoke.BitwiseOr(SamModel.mtMask, SamModel.WorkingDetections[i].mtMask, SamModel.mtMask);
+                    Cv2.BitwiseOr(SamModel.mtMask, SamModel.WorkingDetections[i].mtMask, SamModel.mtMask);
                 }
-                CvInvoke.Erode(SamModel.mtMask, mt, null, new System.Drawing.Point(1, 1), 1, BorderType.Default, CvInvoke.MorphologyDefaultBorderValue);
-                CvInvoke.BitwiseXor(SamModel.mtMask, mt, mt);
+                Cv2.Erode(SamModel.mtMask, mt, new Mat(), new OpenCvSharp.Point(1, 1), 1, BorderTypes.Default, Cv2.MorphologyDefaultBorderValue());
+                Cv2.BitwiseXor(SamModel.mtMask, mt, mt);
                 SamModel.mtOutlineMask = mt.Clone();
                 return new OpenSafeBool(true);
             }

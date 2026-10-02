@@ -1,9 +1,7 @@
 ﻿// Copyright (c) 2026 Robert W. McClellan, Matthew J. McClellan
-// Licensed under the GNU General Public License v3.0. See LICENSE in the repository root.
+// Licensed under the MIT License. See LICENSE in the repository root.
 
-using Emgu.CV;
-using Emgu.CV.CvEnum;
-using Emgu.CV.Structure;
+using OpenCvSharp;
 using System.Data;
 using System.IO;
 using System.Text.Json;
@@ -106,7 +104,7 @@ namespace SamNet
                 SamLog.AddEntry("ExportCoco", $"COCO RLE JSON written to: {finalPath}");
 
                 finalPath = outputJsonPathRoot + "\\images\\" + SamModel.OriginalImageName; ;
-                CvInvoke.Imwrite(finalPath, SamModel.mtImage);
+                Cv2.ImWrite(finalPath, SamModel.mtImage);
 
                 SamLog.AddEntry("ExportCoco", $"COCO image written to: {finalPath}");
 
@@ -118,7 +116,7 @@ namespace SamNet
                     {
                         string pngname = SamModel.OriginalImageName.Substring(0, index) + "_Mask.Png";
                         finalPath = outputJsonPathRoot + "\\PNG_Masks\\" + pngname;
-                        CvInvoke.Imwrite(finalPath, osm.Mt);
+                        Cv2.ImWrite(finalPath, osm.Mt);
                         if (osm.Mt != null) osm.Mt.Dispose();
                         SamLog.AddEntry("ExportCoco", $"COCO Mask written to: {finalPath}");
                     }
@@ -166,9 +164,9 @@ namespace SamNet
                         if (File.Exists(imagePath))
                         {
                             SamModel.OriginalImageName = cocoImage.file_name;
-                            SamModel.mtImage = CvInvoke.Imread(imagePath, ImreadModes.ColorBgr);
-                            SamModel.mtMask = new Mat(SamModel.mtImage.Rows, SamModel.mtImage.Cols, SamModel.mtImage.Depth, 1);
-                            SamModel.mtMask.SetTo(new MCvScalar(0));
+                            SamModel.mtImage = Cv2.ImRead(imagePath, ImreadModes.Color);
+                            SamModel.mtMask = new Mat(SamModel.mtImage.Rows, SamModel.mtImage.Cols, SamModel.mtImage.Depth());
+                            SamModel.mtMask.SetTo(new Scalar(0));
                             if ((coco_dataset.categories.Count() > 0) && (coco_dataset.categories.Count() == coco_dataset.annotations.Count()))
                             {
                                 SamModel.DataSet.Clear();

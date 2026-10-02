@@ -7,12 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Emgu.CV" Version="4.13.0.5924" />
-    <PackageReference Include="Emgu.CV.runtime.windows" Version="4.13.0.5924" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Lib\" />
+    <ProjectReference Include="..\OpenIP\OpenIP.csproj" />
   </ItemGroup>
 
 </Project>

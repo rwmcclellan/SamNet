@@ -1,5 +1,5 @@
 ﻿// Copyright (c) 2026 Robert W. McClellan, Matthew J. McClellan
-// Licensed under the GNU General Public License v3.0. See LICENSE in the repository root.
+// Licensed under the MIT License. See LICENSE in the repository root.
 
 using SharedToolbox;
 using System.Collections.Concurrent;

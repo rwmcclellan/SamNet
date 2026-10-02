@@ -1,20 +1,44 @@
 ﻿// Copyright (c) 2026 Robert W. McClellan, Matthew J. McClellan
-// Licensed under the GNU General Public License v3.0. See LICENSE in the repository root.
+// Licensed under the MIT License. See LICENSE in the repository root.
 
-using Emgu.CV;
-using Emgu.CV.Cuda;
-using Emgu.CV.CvEnum;
-using Emgu.CV.Structure;
-using Emgu.CV.Util;
-using System.Drawing;
+using OpenCvSharp;
 using System.Text;
 
 namespace Open.IP
 {
     public class OpenIP
     {
-        public static MCvScalar Black = new MCvScalar(0);
-        public static MCvScalar White = new MCvScalar(255);
+        public static Scalar Black = new Scalar(0);
+        public static Scalar White = new Scalar(255);
+
+        /// <summary>Converts a System.Drawing.Rectangle to an OpenCvSharp Rect.</summary>
+        public static Rect ToOcvRect(System.Drawing.Rectangle r)
+        {
+            return new Rect(r.X, r.Y, r.Width, r.Height);
+        }
+
+        /// <summary>
+        /// Returns the Mat's bytes tightly packed in row order (no stride padding),
+        /// equivalent to Emgu's Mat.GetRawData() for continuous images.
+        /// </summary>
+        public static byte[] MatToTightByteArray(Mat mtSource)
+        {
+            int rowBytes = mtSource.Cols * mtSource.ElemSize();
+            byte[] tight = new byte[rowBytes * mtSource.Rows];
+            if (mtSource.IsContinuous())
+            {
+                System.Runtime.InteropServices.Marshal.Copy(mtSource.Data, tight, 0, tight.Length);
+                return tight;
+            }
+            long step = (long)mtSource.Step();
+            IntPtr basePtr = mtSource.Data;
+            int rows = mtSource.Rows;
+            for (int y = 0; y < rows; y++)
+            {
+                System.Runtime.InteropServices.Marshal.Copy(new IntPtr(basePtr.ToInt64() + y * step), tight, y * rowBytes, rowBytes);
+            }
+            return tight;
+        }
         public static OpenSafeRectangle FindMaskBoundingBox(Mat? mt)
         {
             if ((mt is null) || (mt.Rows == 0)) return new OpenSafeRectangle("Source Mat is empty");
@@ -22,17 +46,21 @@ namespace Open.IP
             {
                 Mat mtRowProj = new Mat();
                 Mat mtColProj = new Mat();
-                CvInvoke.Reduce(mt, mtRowProj, ReduceDimension.SingleRow, ReduceType.ReduceMax, DepthType.Cv8U);
-                CvInvoke.Reduce(mt, mtColProj, ReduceDimension.SingleCol, ReduceType.ReduceMax, DepthType.Cv8U);
+                Cv2.Reduce(mt, mtRowProj, ReduceDimension.Row, ReduceTypes.Max, (int)MatType.CV_8U);
+                Cv2.Reduce(mt, mtColProj, ReduceDimension.Column, ReduceTypes.Max, (int)MatType.CV_8U);
 
-                VectorOfPoint points = new VectorOfPoint();
-                CvInvoke.FindNonZero(mtRowProj, points);
-                System.Drawing.Rectangle xbox = points.Size > 0 ? CvInvoke.BoundingRectangle(points) : System.Drawing.Rectangle.Empty;
-                points.Dispose();
-                points = new VectorOfPoint();
-                CvInvoke.FindNonZero(mtColProj, points);
-                System.Drawing.Rectangle ybox = points.Size > 0 ? CvInvoke.BoundingRectangle(points) : System.Drawing.Rectangle.Empty;
-                points.Dispose();
+                Rect xbox = new Rect();
+                using (Mat idx = new Mat())
+                {
+                    Cv2.FindNonZero(mtRowProj, idx);
+                    if (!idx.Empty()) xbox = Cv2.BoundingRect(idx);
+                }
+                Rect ybox = new Rect();
+                using (Mat idx = new Mat())
+                {
+                    Cv2.FindNonZero(mtColProj, idx);
+                    if (!idx.Empty()) ybox = Cv2.BoundingRect(idx);
+                }
                 System.Drawing.Rectangle box = new System.Drawing.Rectangle(xbox.X, ybox.Y, xbox.Width, ybox.Height);
                 return new OpenSafeRectangle(box);
             }
@@ -46,8 +74,7 @@ namespace Open.IP
             Mat mt = new Mat();
             try
             {
-                mt = new Mat(rows, cols, DepthType.Cv8U, 1);
-                mt.SetTo(data);
+                mt = Mat.FromPixelData(rows, cols, MatType.CV_8UC1, data);
 
                 return new OpenSafeMat(mt.Clone());
             }
@@ -74,7 +101,7 @@ namespace Open.IP
                 if ((rect.Y + rect.Height > mtSource.Height)) errString += " - out of range bottom";
                 if (errString.Length > 0) return new OpenSafeMat("Rectangle error" + errString);
 
-                mt = new Mat(mtSource, rect);
+                mt = new Mat(mtSource, ToOcvRect(rect));
                 return new OpenSafeMat(mt.Clone());
             }
             catch (Exception ex)
@@ -93,10 +120,10 @@ namespace Open.IP
             Mat mtThreeChannel = new Mat();
             try
             {
-                CvInvoke.Erode(mtSourceMask, mtMask, null, new System.Drawing.Point(1, 1), 1, BorderType.Default, CvInvoke.MorphologyDefaultBorderValue);
-                CvInvoke.BitwiseXor(mtSourceMask, mtMask, mtMask);
-                CvInvoke.CvtColor(mtMask, mtThreeChannel, Emgu.CV.CvEnum.ColorConversion.Gray2Bgr);
-                CvInvoke.BitwiseOr(mt, mtThreeChannel, mt);
+                Cv2.Erode(mtSourceMask, mtMask, new Mat(), new Point(1, 1), 1, BorderTypes.Default, Cv2.MorphologyDefaultBorderValue());
+                Cv2.BitwiseXor(mtSourceMask, mtMask, mtMask);
+                Cv2.CvtColor(mtMask, mtThreeChannel, ColorConversionCodes.GRAY2BGR);
+                Cv2.BitwiseOr(mt, mtThreeChannel, mt);
                 return new OpenSafeMat(mt.Clone());
             }
             catch (Exception ex)
@@ -115,10 +142,10 @@ namespace Open.IP
             Mat mt = new Mat();
             try
             {
-                mt = new Mat(mtSource.Rows, mtSource.Cols, mtSource.Depth, 1);
+                mt = new Mat(mtSource.Rows, mtSource.Cols, mtSource.Depth());
                 mt.SetTo(Black);
-                CvInvoke.Rectangle(mt, rect, White, -1);
-                CvInvoke.BitwiseAnd(mt, mtSource, mt);
+                Cv2.Rectangle(mt, ToOcvRect(rect), White, -1);
+                Cv2.BitwiseAnd(mt, mtSource, mt);
                 return new OpenSafeMat(mt.Clone());
             }
             catch (Exception ex)
@@ -135,22 +162,24 @@ namespace Open.IP
             string str = string.Empty;
             try
             {
-                if (mask.IsEmpty || mask.NumberOfChannels != 1 || mask.Depth != DepthType.Cv8U)
+                if (mask.Empty() || mask.Channels() != 1 || mask.Depth() != (int)MatType.CV_8U)
                     return new OpenSafeListOfInt("Mask must be a single-channel 8U Mat");
                 List<int> list = new List<int>();
 
                 unsafe
                 {
-                    byte* ptr = (byte*)mask.DataPointer.ToPointer();
-                    long step = mask.Step;          // bytes per row
+                    byte* ptr = mask.DataPointer;
+                    long step = mask.Step();          // bytes per row
+                    int cols = mask.Cols;
+                    int rows = mask.Rows;
 
                     int count = 0;
                     bool isForeground = false;      // we start expecting background (0)
 
                     // COCO order: column-major (top-to-bottom, then left-to-right)
-                    for (int x = 0; x < mask.Cols; x++)
+                    for (int x = 0; x < cols; x++)
                     {
-                        for (int y = 0; y < mask.Rows; y++)
+                        for (int y = 0; y < rows; y++)
                         {
                             bool pixelOn = ptr[y * step + x] != 0;
 
@@ -195,7 +224,7 @@ namespace Open.IP
             string str = string.Empty;
             try
             {
-                if (mask.IsEmpty || mask.NumberOfChannels != 1 || mask.Depth != DepthType.Cv8U)
+                if (mask.Empty() || mask.Channels() != 1 || mask.Depth() != (int)MatType.CV_8U)
                     return new OpenSafeString("Mask must be a single-channel 8U Mat", "");
 
                 // Pre-allocate a reasonable capacity (most masks have far fewer runs than pixels)
@@ -203,16 +232,18 @@ namespace Open.IP
 
                 unsafe
                 {
-                    byte* ptr = (byte*)mask.DataPointer.ToPointer();
-                    long step = mask.Step;          // bytes per row
+                    byte* ptr = mask.DataPointer;
+                    long step = mask.Step();          // bytes per row
+                    int cols = mask.Cols;
+                    int rows = mask.Rows;
 
                     int count = 0;
                     bool isForeground = false;      // we start expecting background (0)
 
                     // COCO order: column-major (top-to-bottom, then left-to-right)
-                    for (int x = 0; x < mask.Cols; x++)
+                    for (int x = 0; x < cols; x++)
                     {
-                        for (int y = 0; y < mask.Rows; y++)
+                        for (int y = 0; y < rows; y++)
                         {
                             bool pixelOn = ptr[y * step + x] != 0;
 
@@ -253,9 +284,9 @@ namespace Open.IP
         {
             try
             {
-                if (mtSource == null || mtSource.IsEmpty) return new OpenSafeByteArray("Mat is null or empty");
-                if (mtSource.NumberOfChannels != 3) return new OpenSafeByteArray("Only 3-channel Mats are supported");
-                if (mtSource.Depth != DepthType.Cv8U) return new OpenSafeByteArray("Only 8-bit unsigned Mats are supported");
+                if (mtSource == null || mtSource.Empty()) return new OpenSafeByteArray("Mat is null or empty");
+                if (mtSource.Channels() != 3) return new OpenSafeByteArray("Only 3-channel Mats are supported");
+                if (mtSource.Depth() != (int)MatType.CV_8U) return new OpenSafeByteArray("Only 8-bit unsigned Mats are supported");
 
                 int width = mtSource.Width;
                 int height = mtSource.Height;
@@ -263,11 +294,11 @@ namespace Open.IP
                 // Allocate tightly-packed RGB buffer
                 byte[] pixels = new byte[width * height * 3];
 
-                if (mtSource.IsContinuous)
+                if (mtSource.IsContinuous())
                 {
                     // Fast path – one big copy + BGR→RGB swap
                     var data = new byte[width * height * 3];
-                    System.Runtime.InteropServices.Marshal.Copy(mtSource.DataPointer, data, 0, data.Length);
+                    System.Runtime.InteropServices.Marshal.Copy(mtSource.Data, data, 0, data.Length);
 
                     int src = 0;
                     int dst = 0;
@@ -282,8 +313,8 @@ namespace Open.IP
                 else
                 {
                     // Safe path – copy row by row (handles non-continuous Mats)
-                    int step = (int)mtSource.Step;          // bytes per row including padding
-                    IntPtr ptr = mtSource.DataPointer;
+                    int step = (int)mtSource.Step();          // bytes per row including padding
+                    IntPtr ptr = mtSource.Data;
 
                     unsafe
                     {
@@ -320,7 +351,7 @@ namespace Open.IP
         }
         public static OpenSafeMat ListOfIntToBinaryMask(List<int> list, int rows, int cols, byte intensity = 255)
         {
-            Mat mt = new Mat(rows, cols, DepthType.Cv8U, 1);
+            Mat mt = new Mat(rows, cols, MatType.CV_8UC1);
             try
             {
 
@@ -333,8 +364,8 @@ namespace Open.IP
                 int pos = 0;
                 unsafe
                 {
-                    byte* ptr = (byte*)mt.DataPointer.ToPointer();
-                    long step = mt.Step;
+                    byte* ptr = mt.DataPointer;
+                    long step = mt.Step();
 
                     for (int i = 0; i < list.Count(); i++)
                     {
@@ -369,7 +400,7 @@ namespace Open.IP
         }
         public static OpenSafeMat RleStringToBinaryMask(string rleString, int rows, int cols)
         {
-            Mat mt = new Mat(rows, cols, DepthType.Cv8U, 1);
+            Mat mt = new Mat(rows, cols, MatType.CV_8UC1);
             try
             {
 
@@ -383,8 +414,8 @@ namespace Open.IP
                 int pos = 0;
                 unsafe
                 {
-                    byte* ptr = (byte*)mt.DataPointer.ToPointer();
-                    long step = mt.Step; 
+                    byte* ptr = mt.DataPointer;
+                    long step = mt.Step(); 
                    
                     for (int i = 0; i < rlearray.Length; i++)
                     {
@@ -639,7 +670,7 @@ namespace Open.IP
             }
         }
 
-        public static Rectangle AddPaddingToRect(System.Drawing.Rectangle displayedRect, int rows, int cols, int v)
+        public static System.Drawing.Rectangle AddPaddingToRect(System.Drawing.Rectangle displayedRect, int rows, int cols, int v)
         {
             int left = Math.Max(displayedRect.X - v, 0);
             int top = Math.Max(displayedRect.Y - v, 0);
@@ -656,8 +687,7 @@ namespace Open.IP
         /// </summary>
         public static Mat ByteArrayToMat(byte[] data)
         {
-            Mat mt = new Mat();
-            CvInvoke.Imdecode(data, ImreadModes.ColorBgr, mt);
+            Mat mt = Cv2.ImDecode(data, ImreadModes.Color);
             return mt;
         }
 
@@ -687,16 +717,16 @@ namespace Open.IP
         public static OpenSafeMat RemoveSmallContours(Mat mtSource, double minimumPercentOfLargestBlob)
         {
             PriorityQueue<int, double> pq = new PriorityQueue<int, double>();
-            Mat mtMask = new Mat(mtSource.Rows, mtSource.Cols, mtSource.Depth, 1);
+            Mat mtMask = new Mat(mtSource.Rows, mtSource.Cols, mtSource.Depth());
             mtMask.SetTo(Black);
 
-            using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
             {
-                CvInvoke.FindContours(mtSource, contours, null, RetrType.List, ChainApproxMethod.ChainApproxNone);
+                Point[][] contours;
+                Cv2.FindContours(mtSource, out contours, out _, RetrievalModes.List, ContourApproximationModes.ApproxNone);
 
-                for (int k = 0; k < contours.Size; k++)
+                for (int k = 0; k < contours.Length; k++)
                 {
-                    double darea = CvInvoke.ContourArea(contours[k], true);
+                    double darea = Cv2.ContourArea(contours[k], true);
                     pq.Enqueue(k, darea);
                 }
                 int kk = 0;
@@ -713,7 +743,7 @@ namespace Open.IP
                             mtMask.Dispose();
                             return new OpenSafeMat("Largest contour in RemoveSmallBlobsFromMat has no area");
                         }
-                        CvInvoke.DrawContours(mtMask, contours, kk, White, -1);
+                        Cv2.DrawContours(mtMask, contours, kk, White, -1);
                         firstContour = false;
                     }
                     else
@@ -722,12 +752,12 @@ namespace Open.IP
                         double area = -da / biggestArea;
                         if (area > minimumPercentOfLargestBlob)
                         {
-                            CvInvoke.DrawContours(mtMask, contours, kk, White, -1);
+                            Cv2.DrawContours(mtMask, contours, kk, White, -1);
                         }
                     }
                 }
             }
-            CvInvoke.BitwiseAnd(mtMask, mtSource, mtMask);
+            Cv2.BitwiseAnd(mtMask, mtSource, mtMask);
             return new OpenSafeMat(mtMask);
         }
         #endregion
@@ -753,8 +783,8 @@ namespace Open.IP
           List<OpenPoints> points)
         {
             Mat mt = mtMask.Clone();
-            Mat mtAdd = new Mat(mtMask.Rows, mtMask.Cols, mtMask.Depth, 1);
-            Mat mtSubtract = new Mat(mtMask.Rows, mtMask.Cols, mtMask.Depth, 1);
+            Mat mtAdd = new Mat(mtMask.Rows, mtMask.Cols, mtMask.Depth());
+            Mat mtSubtract = new Mat(mtMask.Rows, mtMask.Cols, mtMask.Depth());
             try
             {
                 mtAdd.SetTo(Black);
@@ -763,7 +793,7 @@ namespace Open.IP
                 int lastY = -1;
                 int who = -1;
                 bool isAddition = false;
-                List<System.Drawing.Point> listPoints = new List<System.Drawing.Point>();
+                List<Point> listPoints = new List<Point>();
                 for (int i = 0; i < points.Count; i++)
                 {
                     int x = (int)Math.Round(points[i].X / bsWidth * rect.Width) + rect.X;
@@ -772,39 +802,33 @@ namespace Open.IP
                     {
                         if (i == (points.Count() - 1))
                         {
-                            if ((lastX != x) || (lastY != y)) listPoints.Add(new System.Drawing.Point(x, y));
+                            if ((lastX != x) || (lastY != y)) listPoints.Add(new Point(x, y));
                         }
                         who = points[i].Index;
                         bool wasAddition = isAddition;
                         isAddition = points[i].IsLeftMouse;
                         if (listPoints.Count > 0)
                         {
-                            System.Drawing.Point[] pointArray = listPoints.ToArray();
-                            using (var contours = new VectorOfVectorOfPoint())
+                            var pointArray = listPoints.ToArray();
+                            var contours = new[] { pointArray };
+                            if (wasAddition)
                             {
-                                using (var vp = new VectorOfPoint(pointArray))
-                                {
-                                    contours.Push(vp);
-                                }
-                                if (wasAddition)
-                                {
-                                    CvInvoke.DrawContours(mtAdd, contours, 0, White, -1);
-                                }
-                                else
-                                {
-                                    CvInvoke.DrawContours(mtSubtract, contours, 0, White, -1);
-                                }
+                                Cv2.DrawContours(mtAdd, contours, 0, White, -1);
+                            }
+                            else
+                            {
+                                Cv2.DrawContours(mtSubtract, contours, 0, White, -1);
                             }
                             listPoints.Clear();
                         }
                     }
-                    if ((lastX != x) || (lastY != y)) listPoints.Add(new System.Drawing.Point(x, y));
+                    if ((lastX != x) || (lastY != y)) listPoints.Add(new Point(x, y));
                     lastX = x;
                     lastY = y;
                 }
-                CvInvoke.BitwiseOr(mt, mtAdd, mt);  // Add additions
-                CvInvoke.BitwiseNot(mtSubtract, mtSubtract);
-                CvInvoke.BitwiseAnd(mt, mtSubtract, mt);  // crop subtractions
+                Cv2.BitwiseOr(mt, mtAdd, mt);  // Add additions
+                Cv2.BitwiseNot(mtSubtract, mtSubtract);
+                Cv2.BitwiseAnd(mt, mtSubtract, mt);  // crop subtractions
                 return new OpenSafeMat(mt.Clone());
             }
             catch (Exception ex)
@@ -837,14 +861,14 @@ namespace Open.IP
         public static OpenSafeMat EditDetectionMain(Mat mtMask, double bsWidth, double bsHeight, List<OpenPoints> points)
         {
             Mat mt = mtMask.Clone();
-            Mat mtAdd = new Mat(mtMask.Rows, mtMask.Cols, mtMask.Depth, 1);
+            Mat mtAdd = new Mat(mtMask.Rows, mtMask.Cols, mtMask.Depth());
             try
             {
                 mtAdd.SetTo(Black);
                 int lastX = -1;
                 int lastY = -1;
                 int who = -1;
-                List<System.Drawing.Point> listPoints = new List<System.Drawing.Point>();
+                List<Point> listPoints = new List<Point>();
                 for (int i = 0; i < points.Count; i++)
                 {
                     int x = (int)Math.Round(points[i].X * mtMask.Cols / bsWidth);
@@ -853,29 +877,23 @@ namespace Open.IP
                     {
                         if (i == (points.Count() - 1))
                         {
-                            if ((lastX != x) || (lastY != y)) listPoints.Add(new System.Drawing.Point(x, y));
+                            if ((lastX != x) || (lastY != y)) listPoints.Add(new Point(x, y));
                         }
                         who = points[i].Index;
                         if (listPoints.Count > 0)
                         {
-                            System.Drawing.Point[] pointArray = listPoints.ToArray();
-                            using (var contours = new VectorOfVectorOfPoint())
-                            {
-                                using (var vp = new VectorOfPoint(pointArray))
-                                {
-                                    contours.Push(vp);
-                                }
-                                CvInvoke.DrawContours(mtAdd, contours, 0, White, -1);
-                            }
+                            var pointArray = listPoints.ToArray();
+                            var contours = new[] { pointArray };
+                            Cv2.DrawContours(mtAdd, contours, 0, White, -1);
                             listPoints.Clear();
                         }
                     }
-                    if ((lastX != x) || (lastY != y)) listPoints.Add(new System.Drawing.Point(x, y));
+                    if ((lastX != x) || (lastY != y)) listPoints.Add(new Point(x, y));
                     lastX = x;
                     lastY = y;
                 }
-                CvInvoke.BitwiseNot(mt, mt);   // Only unused areas are allowed to be added to
-                CvInvoke.BitwiseAnd(mt, mtAdd, mtAdd);  // Add the new contour minus overlap with existing mask
+                Cv2.BitwiseNot(mt, mt);   // Only unused areas are allowed to be added to
+                Cv2.BitwiseAnd(mt, mtAdd, mtAdd);  // Add the new contour minus overlap with existing mask
                 return new OpenSafeMat(mtAdd.Clone());
             }
             catch (Exception ex)
@@ -907,13 +925,13 @@ namespace Open.IP
         /// 
         public static OpenSafeMat ExactThreshold(Mat mtSource, int threshold)
         {
-            Mat mtHigh = new Mat(mtSource.Rows, mtSource.Cols, mtSource.Depth, 1);
-            Mat mtLow = new Mat(mtSource.Rows, mtSource.Cols, mtSource.Depth, 1);
+            Mat mtHigh = new Mat(mtSource.Rows, mtSource.Cols, mtSource.Depth());
+            Mat mtLow = new Mat(mtSource.Rows, mtSource.Cols, mtSource.Depth());
             try
             {
-                CvInvoke.Threshold(mtSource, mtHigh, threshold - 1, 255, ThresholdType.Binary);
-                CvInvoke.Threshold(mtSource, mtLow, threshold, 255, ThresholdType.BinaryInv);
-                CvInvoke.BitwiseAnd(mtHigh, mtLow, mtHigh);
+                Cv2.Threshold(mtSource, mtHigh, threshold - 1, 255, ThresholdTypes.Binary);
+                Cv2.Threshold(mtSource, mtLow, threshold, 255, ThresholdTypes.BinaryInv);
+                Cv2.BitwiseAnd(mtHigh, mtLow, mtHigh);
                 return new OpenSafeMat(mtHigh.Clone());
             }
             catch (Exception ex)
@@ -952,50 +970,44 @@ namespace Open.IP
           List<OpenPoints> points)
         {
             Mat mt = mtMask.Clone();
-            Mat mtSplit = new Mat(mtMask.Rows, mtMask.Cols, mtMask.Depth, 1);
-            Mat mtWork = new Mat(mtMask.Rows, mtMask.Cols, mtMask.Depth, 1);
+            Mat mtSplit = new Mat(mtMask.Rows, mtMask.Cols, mtMask.Depth());
+            Mat mtWork = new Mat(mtMask.Rows, mtMask.Cols, mtMask.Depth());
             try
             {
                 mtSplit.SetTo(Black);
                 int lastX = -1;
                 int lastY = -1;
-                List<System.Drawing.Point> listPoints = new List<System.Drawing.Point>();
+                List<Point> listPoints = new List<Point>();
                 for (int i = 0; i < points.Count; i++)
                 {
                     int x = (int)Math.Round(points[i].X / bsWidth * rect.Width) + rect.X;
                     int y = (int)Math.Round(points[i].Y / bsHeight * rect.Height) + rect.Y;
                     if (i == (points.Count() - 1))
                     {
-                        listPoints.Add(new System.Drawing.Point(x, y));
+                        listPoints.Add(new Point(x, y));
                         if (listPoints.Count > 0)
                         {
-                            System.Drawing.Point[] pointArray = listPoints.ToArray();
-                            using (var contours = new VectorOfVectorOfPoint())
-                            {
-                                using (var vp = new VectorOfPoint(pointArray))
-                                {
-                                    contours.Push(vp);
-                                }
-                                CvInvoke.Polylines(mtSplit, contours, false, White, 3);
-                            }
+                            var pointArray = listPoints.ToArray();
+                            var contours = new[] { pointArray };
+                            Cv2.Polylines(mtSplit, contours, false, White, 3);
                             listPoints.Clear();
                         }
                     }
-                    if ((lastX != x) || (lastY != y)) listPoints.Add(new System.Drawing.Point(x, y));
+                    if ((lastX != x) || (lastY != y)) listPoints.Add(new Point(x, y));
                     lastX = x;
                     lastY = y;
                 }
-                CvInvoke.BitwiseNot(mtSplit, mtSplit);
-                CvInvoke.BitwiseAnd(mt, mtSplit, mtSplit);   //  We should have split contours
-                using (var contours = new VectorOfVectorOfPoint())
+                Cv2.BitwiseNot(mtSplit, mtSplit);
+                Cv2.BitwiseAnd(mt, mtSplit, mtSplit);   //  We should have split contours
                 {
                     mt.SetTo(Black);
                     PriorityQueue<int, double> pq = new PriorityQueue<int, double>();
-                    CvInvoke.FindContours(mtSplit, contours, null, RetrType.List, ChainApproxMethod.ChainApproxNone);
+                    Point[][] contours;
+                    Cv2.FindContours(mtSplit, out contours, out _, RetrievalModes.List, ContourApproximationModes.ApproxNone);
 
-                    for (int k = 0; k < contours.Size; k++)
+                    for (int k = 0; k < contours.Length; k++)
                     {
-                        double darea = CvInvoke.ContourArea(contours[k], true);
+                        double darea = Cv2.ContourArea(contours[k], true);
                         pq.Enqueue(k, darea);
                     }
                     int kk = 0;
@@ -1006,21 +1018,21 @@ namespace Open.IP
                         if (firstContour)
                         {
                             mtWork.SetTo(Black);
-                            CvInvoke.DrawContours(mtWork, contours, kk, White, -1);
-                            CvInvoke.Dilate(mtWork, mtWork, null, new System.Drawing.Point(1, 1), 1, BorderType.Default, new MCvScalar(0));
-                            CvInvoke.BitwiseAnd(mtWork, mtMask, mtWork);   //  Keep holes in contour if they exist
-                            CvInvoke.BitwiseOr(mt, mtWork, mt);
+                            Cv2.DrawContours(mtWork, contours, kk, White, -1);
+                            Cv2.Dilate(mtWork, mtWork, new Mat(), new Point(1, 1), 1, BorderTypes.Default, new Scalar(0));
+                            Cv2.BitwiseAnd(mtWork, mtMask, mtWork);   //  Keep holes in contour if they exist
+                            Cv2.BitwiseOr(mt, mtWork, mt);
                             firstContour = false;
                             continue;
                         }
                         else  // Second contour is faded a bit to show it is a separate contour
                         {
                             mtWork.SetTo(Black);
-                            CvInvoke.DrawContours(mtWork, contours, kk, White, -1);
-                            CvInvoke.Dilate(mtWork, mtWork, null, new System.Drawing.Point(1, 1), 1, BorderType.Default, new MCvScalar(0));
-                            CvInvoke.BitwiseAnd(mtWork, mtMask, mtWork);   //  Keep holes in contour if they exist
-                            CvInvoke.Threshold(mtWork, mtWork, 0, 127, ThresholdType.Binary);
-                            CvInvoke.BitwiseOr(mt, mtWork, mt);
+                            Cv2.DrawContours(mtWork, contours, kk, White, -1);
+                            Cv2.Dilate(mtWork, mtWork, new Mat(), new Point(1, 1), 1, BorderTypes.Default, new Scalar(0));
+                            Cv2.BitwiseAnd(mtWork, mtMask, mtWork);   //  Keep holes in contour if they exist
+                            Cv2.Threshold(mtWork, mtWork, 0, 127, ThresholdTypes.Binary);
+                            Cv2.BitwiseOr(mt, mtWork, mt);
                             break;
                         }
                     }

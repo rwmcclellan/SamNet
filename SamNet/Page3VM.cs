@@ -1,9 +1,7 @@
 ﻿// Copyright (c) 2026 Robert W. McClellan, Matthew J. McClellan
-// Licensed under the GNU General Public License v3.0. See LICENSE in the repository root.
+// Licensed under the MIT License. See LICENSE in the repository root.
 
-using Emgu.CV;
-using Emgu.CV.CvEnum;
-using Emgu.CV.Structure;
+using OpenCvSharp;
 using SharedToolbox;
 using System;
 using System.Collections.Concurrent;
@@ -190,8 +188,8 @@ namespace SamNet
 
             if ((SamModel.mtMask is null) || (SamModel.mtMask.Rows != SamModel.mtImage.Rows))
             {
-                SamModel.mtMask = new Mat(SamModel.mtImage.Rows, SamModel.mtImage.Cols, DepthType.Cv8U, 1);
-                SamModel.mtMask.SetTo(new MCvScalar(0));
+                SamModel.mtMask = new Mat(SamModel.mtImage.Rows, SamModel.mtImage.Cols, MatType.CV_8UC1);
+                SamModel.mtMask.SetTo(new Scalar(0));
             }
 
             // Populate the actual data 
@@ -1270,7 +1268,7 @@ namespace SamNet
             {
                 if (mode == 1)
                 {
-                    mtRoi = new Mat(SamModel.mtImage, sds.Rect);
+                    mtRoi = new Mat(SamModel.mtImage, OpenIP.ToOcvRect(sds.Rect));
                 }
                 else if (mode == 2)
                 {
@@ -1306,11 +1304,11 @@ namespace SamNet
                 }
                 else
                 {
-                    mtRoi = new Mat(osm.Mt, sds.Rect);
+                    mtRoi = new Mat(osm.Mt, OpenIP.ToOcvRect(sds.Rect));
                 }
                 Resize_BitmapA(mtRoi);
                 BS_Roi = ImageSupportWPF.ToBitmapSource(mtRoi);
-                if (sds.Rect.Width > 0) CvInvoke.Rectangle(osm.Mt, sds.Rect, new MCvScalar(255), 2);   // Pretty safe call in the CV world
+                if (sds.Rect.Width > 0) Cv2.Rectangle(osm.Mt, OpenIP.ToOcvRect(sds.Rect), new Scalar(255), 2);   // Pretty safe call in the CV world
                 BS_Three = ImageSupportWPF.ToBitmapSource(osm.Mt);
                 if (osm.Mt != null) osm.Mt.Dispose();
             }

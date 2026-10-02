@@ -1,7 +1,8 @@
 ﻿// Copyright (c) 2026 Robert W. McClellan, Matthew J. McClellan
-// Licensed under the GNU General Public License v3.0. See LICENSE in the repository root.
+// Licensed under the MIT License. See LICENSE in the repository root.
 
-using Emgu.CV;
+using OpenCvSharp;
+using OpenCvSharp.GdipExtensions;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -23,7 +24,7 @@ namespace SharedToolbox
         private static extern int DeleteObject(IntPtr o);
         public static BitmapSource? ToBitmapSource(Mat? mt)
         {
-            using (System.Drawing.Bitmap source = mt.ToBitmap())
+            using (System.Drawing.Bitmap source = BitmapConverter.ToBitmap(mt!))
             {
                 IntPtr ptr = source.GetHbitmap();
                 BitmapSource? bs = null;
@@ -86,7 +87,7 @@ namespace SharedToolbox
                 height = 1;
             }
             Rectangle rect = new Rectangle(x, y, width, height);
-            Mat mtNew = new Mat(mt, rect);
+            Mat mtNew = new Mat(mt!, new Rect(rect.X, rect.Y, rect.Width, rect.Height));
             return mtNew;
         }
 

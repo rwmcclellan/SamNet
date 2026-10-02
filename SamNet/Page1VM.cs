@@ -1,9 +1,8 @@
 ﻿// Copyright (c) 2026 Robert W. McClellan, Matthew J. McClellan
-// Licensed under the GNU General Public License v3.0. See LICENSE in the repository root.
+// Licensed under the MIT License. See LICENSE in the repository root.
 
 using Open.IP;
-using Emgu.CV;
-using Emgu.CV.CvEnum;
+using OpenCvSharp;
 using Microsoft.Win32;
 using SamNet.Native;
 using SharedToolbox;
@@ -799,12 +798,12 @@ namespace SamNet
                     OpenImagesFileButtonClicked();
                     if (ImagePath.Length > 0)
                     {
-                        Mat mtRgb = CvInvoke.Imread(ImagePath, ImreadModes.ColorBgr);
+                        Mat mtRgb = Cv2.ImRead(ImagePath, ImreadModes.Color);
                         int rows = mtRgb.Rows;
                         int cols = mtRgb.Cols;
                         SamModel.mtImage = mtRgb.Clone();
-                        CvInvoke.CvtColor(mtRgb, mtRgb, ColorConversion.Bgr2Rgb);
-                        byte[] rawData = mtRgb.GetRawData();
+                        Cv2.CvtColor(mtRgb, mtRgb, ColorConversionCodes.BGR2RGB);
+                        byte[] rawData = OpenIP.MatToTightByteArray(mtRgb);
                         if (mtRgb is not null) mtRgb.Dispose();
                         ImageInfo info = new ImageInfo(rawData, rows, cols);
                         MessageToWorker?.Enqueue(new MessageToWorker(MessageEnum.Task, "LoadImage", info));
@@ -973,7 +972,7 @@ namespace SamNet
         {
             if (IsViewable == false) return;
             Canvas c = (Canvas)sender;
-            Point p = e.GetPosition(c);
+            System.Windows.Point p = e.GetPosition(c);
             MouseDownX = p.X;
             MouseDownY = p.Y;
             IsMouseDown = true;
@@ -999,7 +998,7 @@ namespace SamNet
             if ((wasMouseDown) || (wasRightMouseDown))
             {
                 Canvas c = (Canvas)sender;
-                Point p = e.GetPosition(c);
+                System.Windows.Point p = e.GetPosition(c);
                 int deltaX = (int)Math.Abs(p.X - MouseDownX);
                 int deltaY = (int)Math.Abs(p.Y - MouseDownY);
                 bool isPositive = true;
@@ -1021,7 +1020,7 @@ namespace SamNet
             if ((IsMouseDown) || (IsRightMouseDown))
             {
                 Canvas c = (Canvas)sender;
-                Point p = e.GetPosition(c);
+                System.Windows.Point p = e.GetPosition(c);
                 int deltaX = (int)Math.Abs(p.X - MouseDownX);
                 int deltaY = (int)Math.Abs(p.Y - MouseDownY);
                 if ((deltaX >= 4) || (deltaY >= 4))

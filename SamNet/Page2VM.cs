@@ -1,9 +1,7 @@
 ﻿// Copyright (c) 2026 Robert W. McClellan, Matthew J. McClellan
-// Licensed under the GNU General Public License v3.0. See LICENSE in the repository root.
+// Licensed under the MIT License. See LICENSE in the repository root.
 
-using Emgu.CV;
-using Emgu.CV.CvEnum;
-using Emgu.CV.Structure;
+using OpenCvSharp;
 using SharedToolbox;
 using System;
 using System.Collections.Concurrent;
@@ -201,10 +199,10 @@ namespace SamNet
                 {
                     SelectedTabIndex = (int)Math.Log((int)P2Tabs.Edit, 2);
                     OperationState = (int)OperationEnum.Sam2Multiple;
-                    SamModel.mtMask = new Mat(SamModel.mtImage.Rows, SamModel.mtImage.Cols, DepthType.Cv8U, 1);
-                    SamModel.mtMask.SetTo(new MCvScalar(0));
-                    SamModel.mtOutlineMask = new Mat(SamModel.mtImage.Rows, SamModel.mtImage.Cols, DepthType.Cv8U, 1);
-                    SamModel.mtOutlineMask.SetTo(new MCvScalar(0));
+                    SamModel.mtMask = new Mat(SamModel.mtImage.Rows, SamModel.mtImage.Cols, MatType.CV_8UC1);
+                    SamModel.mtMask.SetTo(new Scalar(0));
+                    SamModel.mtOutlineMask = new Mat(SamModel.mtImage.Rows, SamModel.mtImage.Cols, MatType.CV_8UC1);
+                    SamModel.mtOutlineMask.SetTo(new Scalar(0));
                     TabItemState = (int)(P2Tabs.Console | P2Tabs.Edit | P2Tabs.Setup);
                 }
                 else
@@ -1147,7 +1145,7 @@ namespace SamNet
                     if (IsRoiCanvasShowing == false) return;
                 }
 
-                Point p = e.GetPosition(c);
+                System.Windows.Point p = e.GetPosition(c);
                 MouseDownX = p.X;
                 MouseDownY = p.Y;
                 MouseStartX = MouseDownX;
@@ -1204,7 +1202,7 @@ namespace SamNet
                 IsMouseDown = false;
                 if (wasMouseDown)
                 {
-                    Point p = e.GetPosition(c);
+                    System.Windows.Point p = e.GetPosition(c);
                     if (c.Tag.ToString()!.Equals("Main"))
                     {
                         MainLines.Add(new LineSegment(IsLeftMouse, EditIndex, MouseDownX, MouseDownY, p.X, p.Y));
@@ -1252,7 +1250,7 @@ namespace SamNet
                 }
                 if (IsMouseDown)
                 {
-                    Point p = e.GetPosition(c);
+                    System.Windows.Point p = e.GetPosition(c);
                     double xdiff = Math.Abs(MouseDownX - p.X);
                     double ydiff = Math.Abs(MouseDownY - p.Y);
                     if ((xdiff + ydiff) > 5)
@@ -1549,7 +1547,7 @@ namespace SamNet
                             if (imageSize > 3000000) growth = 2;
                             if (imageSize > 8000000) growth = 3;
                             if (imageSize > 16000000) growth = 4;
-                            CvInvoke.Dilate(asm.Mt, asm.Mt, null, new System.Drawing.Point(1, 1), growth, BorderType.Default, CvInvoke.MorphologyDefaultBorderValue);
+                            Cv2.Dilate(asm.Mt, asm.Mt, new Mat(), new OpenCvSharp.Point(1, 1), growth, BorderTypes.Default, Cv2.MorphologyDefaultBorderValue());
                         }
                     }
                 }
@@ -1641,19 +1639,19 @@ namespace SamNet
         {
             if (SamModel.WorkingDetections.Count > 0)
             {
-                Mat mtCombinedMask = new Mat(SamModel.mtImage.Rows, SamModel.mtImage.Cols, DepthType.Cv8U, 1);
-                Mat mtOutlineMask = new Mat(SamModel.mtImage.Rows, SamModel.mtImage.Cols, DepthType.Cv8U, 1);
-                mtCombinedMask.SetTo(new MCvScalar(0));
-                mtOutlineMask.SetTo(new MCvScalar(0));
+                Mat mtCombinedMask = new Mat(SamModel.mtImage.Rows, SamModel.mtImage.Cols, MatType.CV_8UC1);
+                Mat mtOutlineMask = new Mat(SamModel.mtImage.Rows, SamModel.mtImage.Cols, MatType.CV_8UC1);
+                mtCombinedMask.SetTo(new Scalar(0));
+                mtOutlineMask.SetTo(new Scalar(0));
                 foreach (var detection in SamModel.WorkingDetections)
                 {
                     if (detection.mtMask != null)
                     {
                         Mat mtShrink = new Mat();
-                        CvInvoke.BitwiseOr(mtCombinedMask, detection.mtMask, mtCombinedMask);
-                        CvInvoke.Erode(detection.mtMask, mtShrink, null, new System.Drawing.Point(1, 1), 1, BorderType.Default, CvInvoke.MorphologyDefaultBorderValue);
-                        CvInvoke.BitwiseXor(mtShrink, detection.mtMask, mtShrink);
-                        CvInvoke.BitwiseOr(mtOutlineMask, mtShrink, mtOutlineMask);
+                        Cv2.BitwiseOr(mtCombinedMask, detection.mtMask, mtCombinedMask);
+                        Cv2.Erode(detection.mtMask, mtShrink, new Mat(), new OpenCvSharp.Point(1, 1), 1, BorderTypes.Default, Cv2.MorphologyDefaultBorderValue());
+                        Cv2.BitwiseXor(mtShrink, detection.mtMask, mtShrink);
+                        Cv2.BitwiseOr(mtOutlineMask, mtShrink, mtOutlineMask);
                         mtShrink.Dispose();
                     }
                 }
@@ -1826,10 +1824,10 @@ namespace SamNet
                 if (imageSize > 3000000) growth = 2;
                 if (imageSize > 8000000) growth = 3;
                 if (imageSize > 16000000) growth = 4;
-                CvInvoke.Dilate(mtHardToSee, mtHardToSee, null, new System.Drawing.Point(1, 1), growth, BorderType.Default, CvInvoke.MorphologyDefaultBorderValue);
+                Cv2.Dilate(mtHardToSee, mtHardToSee, new Mat(), new OpenCvSharp.Point(1, 1), growth, BorderTypes.Default, Cv2.MorphologyDefaultBorderValue());
             }
-            CvInvoke.CvtColor(mtHardToSee, mask3Channel, Emgu.CV.CvEnum.ColorConversion.Gray2Bgr);
-            CvInvoke.BitwiseOr(mtDisplay, mask3Channel, mtDisplay);
+            Cv2.CvtColor(mtHardToSee, mask3Channel, ColorConversionCodes.GRAY2BGR);
+            Cv2.BitwiseOr(mtDisplay, mask3Channel, mtDisplay);
             BS = ImageSupportWPF.ToBitmapSource(mtDisplay);
             if (mask3Channel != null) mask3Channel.Dispose();
             if (mtDisplay != null) mtDisplay.Dispose();
@@ -1841,8 +1839,8 @@ namespace SamNet
             Mat mtDisplay = SamModel.mtImage.Clone();
             Mat mask3Channel = new Mat();
             Mat mtMask = new Mat();            
-            CvInvoke.Erode(mtMaskSource, mtMask, null, new System.Drawing.Point(1, 1), 1, BorderType.Default, CvInvoke.MorphologyDefaultBorderValue);
-            CvInvoke.BitwiseXor(mtMask, mtMaskSource, mtMask);
+            Cv2.Erode(mtMaskSource, mtMask, new Mat(), new OpenCvSharp.Point(1, 1), 1, BorderTypes.Default, Cv2.MorphologyDefaultBorderValue());
+            Cv2.BitwiseXor(mtMask, mtMaskSource, mtMask);
             Mat mtHardToSee = mtMask.Clone();
             int imageSize = mtHardToSee.Rows * mtHardToSee.Cols;
             if (imageSize > 600000)
@@ -1851,10 +1849,10 @@ namespace SamNet
                 if (imageSize > 3000000) growth = 2;
                 if (imageSize > 8000000) growth = 3;
                 if (imageSize > 16000000) growth = 4;
-                CvInvoke.Dilate(mtHardToSee, mtHardToSee, null, new System.Drawing.Point(1, 1), growth, BorderType.Default, CvInvoke.MorphologyDefaultBorderValue);
+                Cv2.Dilate(mtHardToSee, mtHardToSee, new Mat(), new OpenCvSharp.Point(1, 1), growth, BorderTypes.Default, Cv2.MorphologyDefaultBorderValue());
             }
-            CvInvoke.CvtColor(mtHardToSee, mask3Channel, Emgu.CV.CvEnum.ColorConversion.Gray2Bgr);
-            CvInvoke.BitwiseOr(mtDisplay, mask3Channel, mtDisplay);
+            Cv2.CvtColor(mtHardToSee, mask3Channel, ColorConversionCodes.GRAY2BGR);
+            Cv2.BitwiseOr(mtDisplay, mask3Channel, mtDisplay);
             BS = ImageSupportWPF.ToBitmapSource(mtDisplay);
             if (mask3Channel != null) mask3Channel.Dispose();
             if (mtDisplay != null) mtDisplay.Dispose();

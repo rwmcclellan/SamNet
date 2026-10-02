@@ -22,7 +22,7 @@ WPF desktop application for **Segment Anything Model 2** and **Segment Anything 
   - Split regions into 2 labels where they overlap
   - Eliminate small background detections
 - Native C++ inference via `sam3.dll` + ggml backends
-- Emgu.CV for image loading, mask visualization, and post-processing
+- OpenCvSharp for image loading, mask visualization, and post-processing
 - Multi-page WPF UI for experimentation and annotation-style workflows
 
 ## Requirements
@@ -60,8 +60,9 @@ SamNet/
 │   ├── SamModel.cs         # Shared state & mask helpers   
 │   └── ...  
 ├── OpenIP/                 # Supporting image-processing helpers  
-└── README.md
-└── LICENSE
+└── README.md  
+└── LICENSE  
+└── Third-Party-Notices  
 
 ## Supported Prompt Modes
 
@@ -119,24 +120,23 @@ SamNet/
 ## Dependencies
 
 - [sam3.cpp](https://github.com/rwmcclellan/sam3.cpp) – core inference engine - MIT license
-- Emgu.CV – OpenCV wrapper for .NET
-- ApexIP – internal image-processing helpers
+- OpenCvSharp – OpenCV wrapper for .NET
 - [SamNet.Native](https://github.com/rwmcclellan/SamNet.Native) - C# wrapper for sam3.cpp - MIT license
 
 ## License
 
-GNU General Public License v3.0 License – see [LICENSE](LICENSE)
+MIT License – see [LICENSE](LICENSE)
 
 ## Third-Party Components
-See [THIRD_PARTY.md](THIRD_PARTY.md) for licenses and attributions of included libraries.
+See [Third-Party-Notices.md](Third-Party-Notices.md) for licenses and attributions of included libraries.
 
 [Meta Sam3 License](https://sam3ai.com/license/) - Meta Sam3 Model Weights  
-[Meta Sam2 License](https://github.com/facebookresearch/sam2) - Meta Sam2 Model Weights - Licensed under the Apache License, Version 2.0  
-[Emgu License](https://www.emgu.com/wiki/index.php/Licensing:#Open_Source_License) - GNU General Public License v3.0 License  
+[Meta Sam2 License](https://github.com/facebookresearch/sam2) - Meta Sam2 Model Weights - Licensed under the Apache License, Version 2.0 
 
 ## Acknowledgements
 
 [sam3.cpp](https://github.com/pabannier/sam3.cpp)  by PABannier  
 Meta AI for the original Segment Anything models  
-Emgu.CV-4 - C# wrapper for OpenCV  
+OpenCvSharp - C# wrapper for OpenCV  
 AI support from Grok, Perplexity and ChatGPT
+

@@ -128,7 +128,7 @@ SamNet/
 MIT License – see [LICENSE](LICENSE)
 
 ## Third-Party Components
-See [Third-Party-Notices.md](Third-Party-Notices.md) for licenses and attributions of included libraries.
+See [Third-Party-Notices.md](THIRD-PARTY-NOTICES.md) for licenses and attributions of included libraries.
 
 [Meta Sam3 License](https://sam3ai.com/license/) - Meta Sam3 Model Weights  
 [Meta Sam2 License](https://github.com/facebookresearch/sam2) - Meta Sam2 Model Weights - Licensed under the Apache License, Version 2.0 
